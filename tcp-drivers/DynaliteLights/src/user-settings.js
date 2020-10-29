@@ -1,0 +1,2 @@
+THIS_DEVICE.SETTINGS = {};
+THIS_DEVICE.SETTINGS.debug_mode = true;
