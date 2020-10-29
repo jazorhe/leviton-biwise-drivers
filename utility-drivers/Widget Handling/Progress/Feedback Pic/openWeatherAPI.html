@@ -1,0 +1,94 @@
+<div
+  id="openweathermap-widget-15"
+  class="container-widget container-widget--15">
+  <div id="container-openweathermap-widget-15">
+    <div class="widget-right weather-right--type1 widget-right--brown">
+      <div class="widget-right__header widget-right__header--brown">
+        <div class="widget-right__layout">
+          <div>
+            <h2 class="widget-right__title">${city}, AU</h2>
+
+            <p class="widget-right__description">${description}</p>
+          </div>
+        </div>
+
+        <img
+          class="weather-right__icon weather-right__icon--type1"
+          alt="Weather in Melbourne, AU"
+          src="images/${icon}.png"
+          width="128"
+          height="128"/>
+      </div>
+
+      <div class="weather-right weather-right--brown">
+        <div class="weather-right__layout">
+          <div class="weather-right__temperature">${temp}<span>°C</span></div>
+
+          <div class="weather-right__weather">
+            <div class="weather-right-card">
+              <table class="weather-right__table">
+                <!-- <tbody> -->
+
+                <tbody>
+                  <tr class="weather-right__items">
+                    <th
+                      class="weather-right__item"
+                      colspan="2">
+                      Details
+                    </th>
+                  </tr>
+
+                  <tr class="weather-right__items">
+                    <td class="weather-right__item">Feels like</td>
+
+                    <td class="weather-right__item weather-right__feels">
+                      ${feels_like}
+
+                      <span>°C</span>
+                    </td>
+                  </tr>
+
+                  <tr class="weather-right__items">
+                    <td class="weather-right__item">Wind</td>
+
+                    <td class="weather-right__item weather-right__wind-speed">${wind} m/s</td>
+                  </tr>
+
+                  <tr class="weather-right-card__items">
+                    <td class="weather-right__item">Humidity</td>
+
+                    <td class="weather-right__item weather-right__humidity">${humidity}%</td>
+                  </tr>
+
+                  <tr class="weather-right-card__items">
+                    <td class="weather-right__item">Precip</td>
+
+                    <td class="weather-right__item"></td>
+                  </tr>
+
+                  <tr class="weather-right-card__items">
+                    <td class="weather-right__item">Pressure</td>
+
+                    <td class="weather-right__item weather-right__pressure">${pressure} hPa</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="widget-right__footer widget-right__footer--brown">
+        <div class="widget-right__layout">
+          <a
+            href="https://openweathermap.org/"
+            target="_blank">
+            <div class="widget-right__logo_black_small"></div>
+          </a>
+
+          <div class="widget-right__date">${date}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

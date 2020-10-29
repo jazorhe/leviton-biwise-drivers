@@ -1,0 +1,182 @@
+<SCRIPTDEVICE ID="?">
+  <AUTORC>true</AUTORC>
+  <NAME>ACM</NAME>
+  <NOTES><![CDATA[]]></NOTES>
+  <PROTOCOL>TCP</PROTOCOL>
+  <PORT>23</PORT>
+  <IP>192.168.0.123</IP>
+  <FUNCTIONS>
+    <FUNCTION ID="?">
+      <NAME>Send_TCP_Logout</NAME>
+      <PARMS>
+      </PARMS>
+      <SCRIPT><![CDATA[return "exit\r\n";]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>Send_Login</NAME>
+      <PARMS>
+      </PARMS>
+      <SCRIPT><![CDATA[return "\r\n";]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>SetInputCECModeON</NAME>
+      <PARMS>yyy</PARMS>
+      <SCRIPT><![CDATA[return "IN" + yyy + "CECON\r\n";]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>SetInputCECModeOFF</NAME>
+      <PARMS>yyy</PARMS>
+      <SCRIPT><![CDATA[return "IN" + yyy + "CECOFF\r\n";]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>SetOutputFromInput</NAME>
+      <PARMS>xxx,yyy</PARMS>
+      <SCRIPT><![CDATA[return "OUT" + xxx + "FR" + yyy + "\r\n";]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>SetVideoOutputFromInput</NAME>
+      <PARMS>xxx,yyy</PARMS>
+      <SCRIPT><![CDATA[return "OUT" + xxx + "VFR" + yyy + "\r\n";]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>SetAudioOutputFromInput</NAME>
+      <PARMS>xxx,yyy</PARMS>
+      <SCRIPT><![CDATA[return "OUT" + xxx + "AFR" + yyy + "\r\n";]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>RebootReceiver</NAME>
+      <PARMS>xxx</PARMS>
+      <SCRIPT><![CDATA[return "OUT" + xxx + "RB\r\n";]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>SetOutputHDRON</NAME>
+      <PARMS>xxx</PARMS>
+      <SCRIPT><![CDATA[return "OUT" + xxx + "HDRON\r\n";]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>SetOutputHDROFF</NAME>
+      <PARMS>xxx</PARMS>
+      <SCRIPT><![CDATA[return "OUT" + xxx + "HDROFF\r\n";]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>RebootTransmitter</NAME>
+      <PARMS>yyy</PARMS>
+      <SCRIPT><![CDATA[return "IN" + yyy + "RB\r\n";]]></SCRIPT>
+    </FUNCTION>
+  </FUNCTIONS>
+  <EXPRESSIONS>
+    <EXP ID="?">
+      <NAME>All Feedback</NAME>
+      <REGEX><![CDATA[(.*)]]></REGEX>
+      <FEEDBACK>
+        <FB ID="?">
+          <NAME>All Feedback</NAME>
+          <FBID>JAP_All</FBID>
+          <CONVERSION><![CDATA[return data]]></CONVERSION>
+        </FB>
+      </FEEDBACK>
+    </EXP>
+    <EXP ID="?">
+      <NAME>Login</NAME>
+      <REGEX><![CDATA[^(User Name :)]]></REGEX>
+      <FEEDBACK>
+        <FB ID="?">
+          <NAME>JAP_Login</NAME>
+          <FBID>JAP_Login</FBID>
+          <CONVERSION><![CDATA[setTimeout(THIS_DEVICE.Send_Login, 100);
+return "Login attempted...";]]></CONVERSION>
+        </FB>
+      </FEEDBACK>
+    </EXP>
+  </EXPRESSIONS>
+  <INCOMING>
+    <TERM>0D0A</TERM>
+    <SCRIPT><![CDATA[//Incoming bytes are contained in var 'data'
+//Build your data packets by appending 'data' to var 'this.serialdata'
+//Leftover bytes can be stored in 'this.serialdata'
+//pass complete feedback packets to 'this.handleFeedbackPacket(data)';]]></SCRIPT>
+    <ASCII>True</ASCII>
+  </INCOMING>
+  <SHARED>
+    <SCRIPT><![CDATA[THIS_DEVICE.FBPrefix = "ACM200_";
+THIS_DEVICE.API = null;
+
+if(ON_GUI){
+	THIS_DEVICE.API = GUIAPI;
+}
+if(ON_CONTROLLER){
+	THIS_DEVICE.API = CTRLAPI;
+}
+// Track the State of the TCP Connection
+THIS_DEVICE.Connected = false;
+
+// Automatic Login Procedure
+if(ON_CONTROLLER){
+	try{
+		// Login when the controller boots
+		setTimeout(function () {
+			THIS_DEVICE.Send_Login();
+			THIS_DEVICE.Connected = true;
+		}, 200);	
+		
+		// This event is called automatically upon TCP connection
+		THIS_DEVICE.onTCPConnected = function(){  
+			// Login if this event was called as a result of a disconnect
+			if(THIS_DEVICE.Connected === false){
+				THIS_DEVICE.Send_Login();
+				//THIS_DEVICE.Connected = true;
+				CTRLAPI.Debug.WriteLine("Reconnected to ACM200");
+			}
+		};
+		
+		// Set flag to false when the socket closes
+		THIS_DEVICE.onTCPClosed = function(){
+			THIS_DEVICE.Connected = false;
+			CTRLAPI.Debug.WriteLine("Socket to ACM200 Closed!");
+		};
+		
+		
+	} catch (e) {
+		alert(e);
+	}
+}
+
+/***** Default Script Device Callbacks ****/
+
+THIS_DEVICE.OnGUILoaded = function(Name){
+	//This function is called by the API whenever a new page is loaded
+	try{
+			
+	}catch(e){
+		alert(THIS_DEVICE.Name + ".OnGUILoaded error:" + e);
+	}
+};
+
+THIS_DEVICE.OnGUIWake = function(){
+	//This function is called by the API whenever the iOS or Android device wakes from sleep
+	try{
+	
+	}catch(e){
+		alert(THIS_DEVICE.Name + ".OnGUIWake error:" + e);
+	}
+};
+
+THIS_DEVICE.OnGUIWillGoto = function(Name){
+	//This function is called by the API before a page jump
+	try{
+	
+	}catch(e){
+		alert(THIS_DEVICE.Name + ".OnGUIWillGoto error:" + e);
+	}
+};
+
+
+]]></SCRIPT>
+  </SHARED>
+  <SETTINGS>
+    <SETTING NAME="debug_mode"><![CDATA[true]]></SETTING>
+    <NOTES><![CDATA[THESE SETTINGS ARE FOR USE WITH A BC1 or BC2 ONLY.
+
+debug_mode - If set to true, all responses from the Switch will be printed to Project Editor's debug window. Default is false.  This is a boolean and should not be in quotes.]]></NOTES>
+  </SETTINGS>
+</SCRIPTDEVICE>

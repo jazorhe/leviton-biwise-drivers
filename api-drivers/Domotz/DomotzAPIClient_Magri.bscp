@@ -1,0 +1,337 @@
+<SCRIPTDEVICE ID="?">
+  <NAME>DomotzAPIClient_Magri</NAME>
+  <NOTES><![CDATA[There are many ways to achieve web REST API infomation exchange in all languages.
+In PUSH, through a series of testing and blind searching, XMLHttpRequest is found to be most compatible with the control system.
+
+Here is a good reference webpage that describes the functionality of smlhttprequest:
+https://javascript.info/xmlhttprequest
+This script device was built based on the above web page's explaination and insturctions.
+There are other websites that explains this concept, however, their enviornment are not as similar as the above website.
+Hence following the above link is recommended.
+
+In PUSH/BitWise Javascript API, the "GUIAPI.HTTP"/"CTRAPI.HTTP" provide some basic GET/POST function to HTTP pages only,
+They will not be suitable for any infomation to a HTTPS protocol for the following reasons:
+1. Security/Privacy
+2. Complexity
+3. Any API calls that needs key for authentication
+4. Headers Specification
+5. Possibly more.
+
+The ideal applications to these built in GUIAPI.HTTP/CTRAPI.HTTP will be API calls within the local network that are not security/privacy sensitive, e.g. send IP command to TV (no authentication).
+At this stage, only basic GET and POST functions are built in this script device so it should work with most web REST APIs including Domotz,  including Magri's Link Tap device etc.
+Unleashed is tricky as it uses an encoded signature as extra layer of security and current there is no way to generate such signature in PUSH's enviornment.
+https://portal.domotz.com/developers/?shell#
+https://apidocs.unleashedsoftware.com/AuthenticationHelp
+https://www.link-tap.com/#!/api-for-developers
+
+This will be investigated in future but the chance is very tiny as these signature methods are relatively new and constantly updated, chance of PUSH supporting dependencies like these are very little.
+
+More functions are available to build more esaily as the biggest roadblock has been overcome and this should advance our control system greatly.
+jazor.he@gmail.com
+]]></NOTES>
+  <PROTOCOL>232</PROTOCOL>
+  <PORT>1</PORT>
+  <IP />
+  <AUTORC>true</AUTORC>
+  <FUNCTIONS>
+    <FUNCTION ID="?">
+      <NAME>APIGetTestExample</NAME>
+      <PARMS />
+      <SCRIPT><![CDATA[let xhr = new XMLHttpRequest();
+
+xhr.open('GET', 'https://javascript.info/article/xmlhttprequest/example/json');
+xhr.responseType = 'json';
+
+xhr.send();
+
+xhr.onload = function() {
+  if (xhr.status != 200) { // analyze HTTP status of the response
+    alert(`Error ${xhr.status}: ${xhr.statusText}`); // e.g. 404: Not Found
+  } else { // show the result
+	let responseObj = xhr.response;
+	alert(responseObj.message);
+    // alert(`Done, got ${xhr.response.length} bytes`); // responseText is the server
+  }
+};
+
+xhr.onprogress = function(event) {
+  if (event.lengthComputable) {
+    // alert(`Received ${event.loaded} of ${event.total} bytes`);
+  } else {
+    // alert(`Received ${event.loaded} bytes`); // no Content-Length
+  }
+
+};
+
+xhr.onerror = function() {
+  alert("Request failed");
+};
+
+xhr.timeout = 10000;
+
+return ""]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>Unleasehd_APIGetTest</NAME>
+      <PARMS>params</PARMS>
+      <SCRIPT><![CDATA[// This function is not complete, as there is currently on way to generagte the encoded signature for Unleashed.
+let xhr = new XMLHttpRequest();
+
+var api_id  = '32b37bc2-e833-47bf-89a7-adce32bfac4d';
+var api_key = 'eGS5kpFLGDW7b83qi8DdZSWw9eNKP4SpIZqrY0mdzan5zHvYHC8H4ICLnH7Wf6x1LIx590vnK4rQj3fQFcbnjQ==';
+
+xhr.open('GET', 'https://go.unleashedsoftware.com/v2/Products/1');
+xhr.setRequestHeader('Content-Type', 'application/json');
+xhr.setRequestHeader('Accpet', 'application/json');
+xhr.setRequestHeader('api-auth-id', api_id);
+
+// var hash = CryptoJS.HmacSHA256(params, api_key);
+// var hashInBase64 = CryptoJS.enc.Base64.stringify(hash);
+// xhr.setRequestHeader('api-auth-signature', hashInBase64);
+
+xhr.responseType = 'json';
+
+xhr.send();
+
+xhr.onload = function() {
+  if (xhr.status != 200) { // analyze HTTP status of the response
+    alert(`Error ${xhr.status}: ${xhr.statusText}`); // e.g. 404: Not Found
+  } else { // show the result
+	let responseObj = xhr.response;
+	alert(responseObj.message);
+    // alert(`Done, got ${xhr.response.length} bytes`); // responseText is the server
+  }
+};
+
+xhr.onprogress = function(event) {
+  if (event.lengthComputable) {
+    alert(`Received ${event.loaded} of ${event.total} bytes`);
+  } else {
+    alert(`Received ${event.loaded} bytes`); // no Content-Length
+  }
+
+};
+
+xhr.onerror = function() {
+  alert("Request failed");
+};
+
+xhr.timeout = 10000;
+
+return ""]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>Domotz_API_listAgents</NAME>
+      <PARMS />
+      <SCRIPT><![CDATA[let xhr = new XMLHttpRequest();
+
+var api_key = THIS_DEVICE.SETTINGS['domotz_api_key'];
+
+xhr.open('GET', 'https://api-eu-west-1-cell-1.domotz.com/public-api/v1/agent');
+xhr.setRequestHeader('Accpet', 'application/json');
+xhr.setRequestHeader('X-Api-Key', api_key);
+xhr.responseType = 'json';
+
+xhr.send();
+
+xhr.onload = function() {
+  if (xhr.status != 200) { // analyze HTTP status of the response
+    alert(`Error ${xhr.status}: ${xhr.statusText}`); // e.g. 404: Not Found
+  } else { // show the result
+	let responseObj = JSON.stringify(xhr.response);
+	alert(responseObj);
+    // alert(`Done, got ${xhr.response.length} bytes`); // responseText is the server
+  }
+};
+
+xhr.onprogress = function(event) {
+  if (event.lengthComputable) {
+    // alert(`Received ${event.loaded} of ${event.total} bytes`);
+  } else {
+    // alert(`Received ${event.loaded} bytes`); // no Content-Length
+  }
+
+};
+
+xhr.onerror = function() {
+  alert("Request failed");
+};
+
+xhr.timeout = 10000;
+
+return ""]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>Domotz_API_listDevices</NAME>
+      <PARMS />
+      <SCRIPT><![CDATA[let xhr = new XMLHttpRequest();
+
+var agentID  = THIS_DEVICE.SETTINGS['domotz_agentID'];
+var api_key = THIS_DEVICE.SETTINGS['domotz_api_key'];
+
+xhr.open('GET', 'https://api-eu-west-1-cell-1.domotz.com/public-api/v1/agent/' + agentID + '/device');
+xhr.setRequestHeader('Accpet', 'application/json');
+xhr.setRequestHeader('X-Api-Key', api_key);
+xhr.responseType = 'json';
+
+xhr.send();
+
+xhr.onload = function() {
+  if (xhr.status != 200) { // analyze HTTP status of the response
+    alert(`Error ${xhr.status}: ${xhr.statusText}`); // e.g. 404: Not Found
+  } else { // show the result
+	let responseObj = JSON.stringify(xhr.response);
+	alert(responseObj);
+    // alert(`Done, got ${xhr.response.length} bytes`); // responseText is the server
+  }
+};
+
+xhr.onprogress = function(event) {
+  if (event.lengthComputable) {
+    // alert(`Received ${event.loaded} of ${event.total} bytes`);
+  } else {
+    // alert(`Received ${event.loaded} bytes`); // no Content-Length
+  }
+
+};
+
+xhr.onerror = function() {
+  alert("Request failed");
+};
+
+xhr.timeout = 10000;
+
+return ""]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>Domotz_API_getDevicePowerActions</NAME>
+      <PARMS />
+      <SCRIPT><![CDATA[let xhr = new XMLHttpRequest();
+
+var agentID  = THIS_DEVICE.SETTINGS['domotz_agentID'];
+var api_key = THIS_DEVICE.SETTINGS['domotz_api_key'];
+var deviceID = THIS_DEVICE.SETTINGS['quicktest_deviceID'];
+
+xhr.open('GET', 'https://api-eu-west-1-cell-1.domotz.com/public-api/v1/agent/' + agentID + '/device/' + deviceID + '/action/power');
+xhr.setRequestHeader('Accpet', 'application/json');
+xhr.setRequestHeader('X-Api-Key', api_key);
+xhr.responseType = 'json';
+
+xhr.send();
+
+xhr.onload = function() {
+  if (xhr.status != 200) { // analyze HTTP status of the response
+    alert(`Error ${xhr.status}: ${xhr.statusText}`); // e.g. 404: Not Found
+  } else { // show the result
+	let responseObj = JSON.stringify(xhr.response);
+	alert(responseObj);
+    // alert(`Done, got ${xhr.response.length} bytes`); // responseText is the server
+  }
+};
+
+xhr.onprogress = function(event) {
+  if (event.lengthComputable) {
+    // alert(`Received ${event.loaded} of ${event.total} bytes`);
+  } else {
+    // alert(`Received ${event.loaded} bytes`); // no Content-Length
+  }
+
+};
+
+xhr.onerror = function() {
+  alert("Request failed");
+};
+
+xhr.timeout = 10000;
+
+return ""]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>Domotz_API_powerActionOnDevice</NAME>
+      <PARMS />
+      <SCRIPT><![CDATA[let xhr = new XMLHttpRequest();
+
+var agentID  = THIS_DEVICE.SETTINGS['domotz_agentID'];
+var api_key = THIS_DEVICE.SETTINGS['domotz_api_key'];
+var deviceID = THIS_DEVICE.SETTINGS['quicktest_deviceID'];
+
+var field = 'software-reboot'; // Options are 'on', 'off', 'software-reboot' and 'cycle'
+xhr.open('POST', 'https://api-eu-west-1-cell-1.domotz.com/public-api/v1/agent/' + agentID + '/device/' + deviceID + '/action/power/' + field);
+xhr.setRequestHeader('X-Api-Key', api_key);
+xhr.responseType = 'json';
+
+xhr.send();
+
+xhr.onload = function() {
+  if (xhr.status != 200) { // analyze HTTP status of the response
+    alert(`Error ${xhr.status}: ${xhr.statusText}`); // e.g. 404: Not Found
+  } else { // show the result
+	let responseObj = JSON.stringify(xhr.response);
+	alert(responseObj);
+    // alert(`Done, got ${xhr.response.length} bytes`); // responseText is the server
+  }
+};
+
+xhr.onprogress = function(event) {
+  if (event.lengthComputable) {
+    // alert(`Received ${event.loaded} of ${event.total} bytes`);
+  } else {
+    // alert(`Received ${event.loaded} bytes`); // no Content-Length
+  }
+
+};
+
+xhr.onerror = function() {
+  alert("Request failed");
+};
+
+xhr.timeout = 10000;
+
+return ""]]></SCRIPT>
+    </FUNCTION>
+  </FUNCTIONS>
+  <EXPRESSIONS />
+  <INCOMING>
+    <TERM>0D0A</TERM>
+    <SCRIPT><![CDATA[]]></SCRIPT>
+    <ASCII>True</ASCII>
+  </INCOMING>
+  <SHARED>
+    <SCRIPT><![CDATA[/***** Default Script Device Callbacks ****/
+
+THIS_DEVICE.OnGUILoaded = function(Name){
+	//This function is called by the API whenever a new page is loaded
+	try{
+	
+	}catch(e){
+		alert(THIS_DEVICE.Name + ".OnGUILoaded error:" + e);
+	}
+};
+
+THIS_DEVICE.OnGUIWake = function(){
+	//This function is called by the API whenever the iOS or Android device wakes from sleep
+	try{
+	
+	}catch(e){
+		alert(THIS_DEVICE.Name + ".OnGUIWake error:" + e);
+	}
+};
+
+THIS_DEVICE.OnGUIWillGoto = function(Name){
+	//This function is called by the API before a page jump
+	try{
+	
+	}catch(e){
+		alert(THIS_DEVICE.Name + ".OnGUIWillGoto error:" + e);
+	}
+};
+
+]]></SCRIPT>
+  </SHARED>
+  <SETTINGS>
+    <SETTING NAME="domotz_api_key"><![CDATA["RfSnVPIyF8zEegeh4Ph3HUr8FyRX6aEDvkJD6Txw1yA"]]></SETTING>
+    <SETTING NAME="domotz_agentID"><![CDATA["250758"]]></SETTING>
+    <SETTING NAME="quicktest_deviceID"><![CDATA["3482266"]]></SETTING>
+    <NOTES><![CDATA[]]></NOTES>
+  </SETTINGS>
+</SCRIPTDEVICE>

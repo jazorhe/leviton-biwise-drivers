@@ -1,0 +1,198 @@
+<SCRIPTDEVICE ID="?">
+  <NAME>LinkTapAPIClient</NAME>
+  <NOTES><![CDATA[]]></NOTES>
+  <PROTOCOL>API</PROTOCOL>
+  <PORT>
+  </PORT>
+  <IP>
+  </IP>
+  <AUTORC>true</AUTORC>
+  <FUNCTIONS>
+    <FUNCTION ID="?">
+      <NAME>GetAllDevices</NAME>
+      <PARMS>
+      </PARMS>
+      <SCRIPT><![CDATA[var data = "username=" + THIS_DEVICE.SETTINGS["username"] + "&apiKey=" + THIS_DEVICE.SETTINGS["apiKey"];
+
+var xhr = new XMLHttpRequest();
+xhr.withCredentials = true;
+
+xhr.addEventListener("readystatechange", function() {
+  if(this.readyState === 4) {
+    console.log(this.responseText);
+  }
+});
+
+xhr.open("POST", "https://www.link-tap.com/api/getAllDevices");
+xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+xhr.send(data);
+
+xhr.onload = function() {
+  if (xhr.status != 200) { // analyze HTTP status of the response
+    alert(`Error ${xhr.status}: ${xhr.statusText}`); // e.g. 404: Not Found
+  } else { // show the result
+	let responseObj = xhr.response;
+	alert(responseObj);
+    // alert(`Done, got ${xhr.response.length} bytes`); // responseText is the server
+  }
+};
+
+xhr.onprogress = function(event) {
+  if (event.lengthComputable) {
+    // alert(`Received ${event.loaded} of ${event.total} bytes`);
+  } else {
+    // alert(`Received ${event.loaded} bytes`); // no Content-Length
+  }
+
+};
+
+xhr.onerror = function() {
+  alert("Request failed");
+};
+
+xhr.timeout = 10000;
+
+return ""
+]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>InstantOn</NAME>
+      <PARMS>tap</PARMS>
+      <SCRIPT><![CDATA[var taplinkId = "";
+
+switch (tap) {
+	case "GATE":
+		taplinkerId = THIS_DEVICE.SETTINGS["taplinkerId_1"];
+		break;
+		
+	case "FEATURE":
+		taplinkerId = THIS_DEVICE.SETTINGS["taplinkerId_2"];
+		break;
+		
+	case "STUDY":
+		taplinkerId = THIS_DEVICE.SETTINGS["taplinkerId_3"];
+		break;
+		
+	case "GAMES":
+		taplinkerId = THIS_DEVICE.SETTINGS["taplinkerId_4"];
+		break;
+
+}
+
+var data = "username=" + THIS_DEVICE.SETTINGS["username"] + "&apiKey=" + THIS_DEVICE.SETTINGS["apiKey"] 
+		+ "&gatewayId=" + THIS_DEVICE.SETTINGS["gatewayId"] + "&taplinkerId=" + taplinkerId 
+		+ "&action=true&duration=5&autoBack=true";
+
+var xhr = new XMLHttpRequest();
+xhr.withCredentials = true;
+
+xhr.addEventListener("readystatechange", function() {
+  if(this.readyState === 4) {
+    console.log(this.responseText);
+  }
+});
+
+xhr.open("POST", "https://www.link-tap.com/api/activateInstantMode");
+xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+xhr.send(data);
+
+xhr.onload = function() {
+  if (xhr.status != 200) { // analyze HTTP status of the response
+    // alert(`Error ${xhr.status}: ${xhr.statusText}`); // e.g. 404: Not Found
+  } else { // show the result
+	let responseObj = xhr.response;
+	// alert(responseObj);
+    // alert(`Done, got ${xhr.response.length} bytes`); // responseText is the server
+  }
+};
+
+xhr.onprogress = function(event) {
+  if (event.lengthComputable) {
+    // alert(`Received ${event.loaded} of ${event.total} bytes`);
+  } else {
+    // alert(`Received ${event.loaded} bytes`); // no Content-Length
+  }
+
+};
+
+xhr.onerror = function() {
+  alert("Request failed");
+};
+
+xhr.timeout = 10000;
+
+return ""
+]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>loopWholeHouse</NAME>
+      <PARMS>
+      </PARMS>
+      <SCRIPT><![CDATA[THIS_DEVICE.InstantOn("FEATURE");
+
+setTimeout(function () {
+	THIS_DEVICE.InstantOn("GAMES");
+}, 62000);
+
+setTimeout(function () {
+	THIS_DEVICE.InstantOn("STUDY");
+}, 124000);
+
+setTimeout(function () {
+	THIS_DEVICE.InstantOn("GATE");
+}, 186000);
+
+return "";]]></SCRIPT>
+    </FUNCTION>
+  </FUNCTIONS>
+  <EXPRESSIONS />
+  <INCOMING>
+    <TERM>0D0A</TERM>
+    <SCRIPT><![CDATA[]]></SCRIPT>
+    <ASCII>True</ASCII>
+  </INCOMING>
+  <SHARED>
+    <SCRIPT><![CDATA[/***** Default Script Device Callbacks ****/
+
+THIS_DEVICE.OnGUILoaded = function(Name){
+	//This function is called by the API whenever a new page is loaded
+	try{
+	
+	}catch(e){
+		alert(THIS_DEVICE.Name + ".OnGUILoaded error:" + e);
+	}
+};
+
+THIS_DEVICE.OnGUIWake = function(){
+	//This function is called by the API whenever the iOS or Android device wakes from sleep
+	try{
+	
+	}catch(e){
+		alert(THIS_DEVICE.Name + ".OnGUIWake error:" + e);
+	}
+};
+
+THIS_DEVICE.OnGUIWillGoto = function(Name){
+	//This function is called by the API before a page jump
+	try{
+	
+	}catch(e){
+		alert(THIS_DEVICE.Name + ".OnGUIWillGoto error:" + e);
+	}
+};
+
+]]></SCRIPT>
+  </SHARED>
+  <SETTINGS>
+    <SETTING NAME="username"><![CDATA["Millie11"]]></SETTING>
+    <SETTING NAME="apiKey"><![CDATA["0545108d03cc139b66e4725e994c3fa9"]]></SETTING>
+    <SETTING NAME="gatewayId"><![CDATA["3DDEBE1E004B1200"]]></SETTING>
+    <SETTING NAME="taplinkerId_1"><![CDATA["0C52C21E004B1200"]]></SETTING>
+    <SETTING NAME="taplinkerId_2"><![CDATA["6D54C21E004B1200"]]></SETTING>
+    <SETTING NAME="taplinkerId_3"><![CDATA["985BC21E004B1200"]]></SETTING>
+    <SETTING NAME="taplinkerId_4"><![CDATA["8B5DC21E004B1200"]]></SETTING>
+    <NOTES><![CDATA[]]></NOTES>
+  </SETTINGS>
+</SCRIPTDEVICE>

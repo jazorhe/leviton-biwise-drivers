@@ -1,0 +1,468 @@
+<SCRIPTDEVICE ID="?">
+  <AUTORC>true</AUTORC>
+  <NAME>SonyBraviaTV</NAME>
+  <NOTES><![CDATA[https://pro-bravia.sony.net/develop/integrate/ssip/command-definitions/index.html]]></NOTES>
+  <PROTOCOL>TCP</PROTOCOL>
+  <PORT>20060</PORT>
+  <IP>192.168.1.173</IP>
+  <FUNCTIONS>
+    <FUNCTION ID="?">
+      <NAME>PowerOff</NAME>
+      <PARMS>
+      </PARMS>
+      <SCRIPT><![CDATA[return "*SCPOWR0000000000000000\n";]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>PowerOn</NAME>
+      <PARMS>
+      </PARMS>
+      <SCRIPT><![CDATA[return "*SCPOWR0000000000000001\n";]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>getAudioVolume</NAME>
+      <PARMS>
+      </PARMS>
+      <SCRIPT><![CDATA[// Response
+// "*SAVOLUXXXXXXXXXXXXXXXX" Success with volume value
+// "*SAVOLUFFFFFFFFFFFFFFFF" Error
+return "*SEVOLU################\n";
+]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>VolUp</NAME>
+      <PARMS>
+      </PARMS>
+      <SCRIPT><![CDATA[return "*SCIRCC0000000000000030\n";]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>VolDown</NAME>
+      <PARMS>
+      </PARMS>
+      <SCRIPT><![CDATA[return "*SCIRCC0000000000000031\n";]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>getPowerStatus</NAME>
+      <PARMS>
+      </PARMS>
+      <SCRIPT><![CDATA[// Response
+// "*SAPOWR0000000000000000" Standby (Off)
+// "*SAPOWR0000000000000001" Active (On)
+// "*SAPOWRFFFFFFFFFFFFFFFF" Error
+return "*SEPOWR################\n";]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>setAudioVolume</NAME>
+      <PARMS>num</PARMS>
+      <SCRIPT><![CDATA[var number = ""; // Num can varie from 0-100
+
+num = num.toString(10);
+for ( var i = 0; i < (16 - num.length); i++ ) {
+	number = number.concat("0");
+}
+
+number = number.concat(num);
+
+// Response
+// "*SAVOLU0000000000000000" Success
+// "*SAVOLUFFFFFFFFFFFFFFFF" Error
+var message = "*SCVOLU" + number + "\n";
+return message;
+]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>setAudioMute</NAME>
+      <PARMS>
+      </PARMS>
+      <SCRIPT><![CDATA[// "*SCAMUT0000000000000001\n" Mute
+//
+// Response
+// "*SAAMUT0000000000000000" Success
+// "*SAAMUTFFFFFFFFFFFFFFFF" Error
+//
+// Need Toggle
+return "*SCAMUT0000000000000000\n"; // Unmute
+]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>getAudioMute</NAME>
+      <PARMS>
+      </PARMS>
+      <SCRIPT><![CDATA[// Response
+// "*SAAMUT0000000000000000\n" Not Muted
+// "*SAAMUT0000000000000001\n" Muted
+// "*SASMUTFFFFFFFFFFFFFFFF" Error
+return "*SEAMUT################\n";
+]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>setInput</NAME>
+      <PARMS>type,num</PARMS>
+      <SCRIPT><![CDATA[var code = "0";
+switch (type) {
+	
+	case "H":
+		code = "1"; // For HDMI
+		break;
+		
+	case "C":
+		code = "4"; // For Component
+		break;
+		
+	case "M":
+		code = "5"; // For Screen Mirroring
+		break;
+}
+
+var number = ""; // Num can varie from 1-9999
+
+num = num.toString(10);
+for ( var i = 0; i < (4 - num.length); i++ ) {
+	number = number.concat("0");
+}
+
+number = number.concat(num);
+
+// Response
+// "*SAVOLU0000000000000000" Success
+// "*SAVOLUFFFFFFFFFFFFFFFF" Error
+
+var message = "*SCINPT0000000" + code + "0000" + number +"\n";
+return message;]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>setIrccCode</NAME>
+      <PARMS>command</PARMS>
+      <SCRIPT><![CDATA[switch (command) {
+	
+	case "Display":
+		var code = "0000000000000005";
+		break;
+		
+	case "Home":
+		var code = "0000000000000006";
+		break;
+		
+	case "Option":
+		var code = "0000000000000007";
+		break;
+		
+	case "Return":
+		var code = "0000000000000008";
+		break;
+		
+	case "Up":
+		var code = "0000000000000009";
+		break;
+		
+	case "Down":
+		var code = "0000000000000010";
+		break;
+		
+	case "Right":
+		var code = "0000000000000011";
+		break;
+		
+	case "Left":
+		var code = "0000000000000012";
+		break;
+		
+	case "Confirm":
+		var code = "0000000000000013";
+		break;
+		
+	case "Red":
+		var code = "0000000000000014";
+		break;
+		
+	case "Green":
+		var code = "0000000000000015";
+		break;
+		
+	case "Yellow":
+		var code = "0000000000000016";
+		break;
+		
+	case "Blue":
+		var code = "0000000000000017";
+		break;
+		
+	case "Num1":
+		var code = "0000000000000018";
+		break;
+		
+	case "Num2":
+		var code = "0000000000000019";
+		break;
+		
+	case "Num3":
+		var code = "0000000000000020";
+		break;
+		
+	case "Num4":
+		var code = "0000000000000021";
+		break;
+		
+	case "Num5":
+		var code = "0000000000000022";
+		break;
+		
+	case "Num6":
+		var code = "0000000000000023";
+		break;
+		
+	case "Num7":
+		var code = "0000000000000024";
+		break;
+		
+	case "Num8":
+		var code = "0000000000000025";
+		break;
+		
+	case "Num9":
+		var code = "0000000000000026";
+		break;
+		
+	case "Num0":
+		var code = "0000000000000027";
+		break;
+		
+	case "VolumeUp":
+		var code = "0000000000000030";
+		break;
+		
+	case "VolumeDown":
+		var code = "0000000000000031";
+		break;
+		
+	case "Mute":
+		var code = "0000000000000032";
+		break;
+		
+	case "ChannelUp":
+		var code = "0000000000000033";
+		break;
+		
+	case "ChannelDown":
+		var code = "0000000000000034";
+		break;
+		
+	case "Subtitle":
+		var code = "0000000000000035";
+		break;
+		
+	case "DOT":
+		var code = "0000000000000038";
+		break;
+		
+	case "PictureOff":
+		var code = "0000000000000050";
+		break;
+		
+	case "Wide":
+		var code = "0000000000000061";
+		break;
+		
+	case "Jump":
+		var code = "0000000000000062";
+		break;
+		
+	case "SyncMenu":
+		var code = "0000000000000076";
+		break;
+		
+	case "Forward":
+		var code = "0000000000000077";
+		break;
+		
+	case "Play":
+		var code = "0000000000000078";
+		break;
+		
+	case "Rewind":
+		var code = "0000000000000079";
+		break;
+		
+	case "Prev":
+		var code = "0000000000000080";
+		break;
+		
+	case "Stop":
+		var code = "0000000000000081";
+		break;
+		
+	case "Next":
+		var code = "0000000000000082";
+		break;
+		
+	case "Pause":
+		var code = "0000000000000084";
+		break;
+		
+	case "FlashPlus":
+		var code = "0000000000000086";
+		break;
+		
+	case "FlashMinus":
+		var code = "0000000000000087";
+		break;
+		
+	case "TVPower":
+		var code = "0000000000000098";
+		break;
+		
+	case "Audio":
+		var code = "0000000000000099";
+		break;
+		
+	case "Input":
+		var code = "0000000000000101";
+		break;
+		
+	case "Sleep":
+		var code = "0000000000000104";
+		break;
+		
+	case "SleepTimer":
+		var code = "0000000000000105";
+		break;
+		
+	case "Video2":
+		var code = "0000000000000108";
+		break;
+		
+	case "PictureMode":
+		var code = "0000000000000110";
+		break;
+		
+	case "DemoSurround":
+		var code = "0000000000000121";
+		break;
+		
+	case "HDMI1":
+		var code = "0000000000000124";
+		break;
+		
+	case "HDMI2":
+		var code = "0000000000000125";
+		break;
+		
+	case "HDMI3":
+		var code = "0000000000000126";
+		break;
+		
+	case "HDMI4":
+		var code = "0000000000000127";
+		break;
+		
+	case "ActionMenu":
+		var code = "0000000000000129";
+		break;
+		
+	case "Help":
+		var code = "0000000000000130";
+		break;
+}
+
+// Response
+// "*SAIRCC0000000000000000" Success
+// "*SAIRCCFFFFFFFFFFFFFFFF" Error
+var message = "*SCIRCC" + code + "\n";
+return message;
+]]></SCRIPT>
+    </FUNCTION>
+  </FUNCTIONS>
+  <EXPRESSIONS>
+    <EXP ID="?">
+      <NAME>Volume</NAME>
+      <REGEX><![CDATA[\*S[N|A]VOLU(.*)]]></REGEX>
+      <FEEDBACK>
+        <FB ID="?">
+          <NAME>AudioVolume</NAME>
+          <FBID>VOLUME</FBID>
+          <CONVERSION><![CDATA[try {
+var vol_hex = data.toString();
+	var r = parseInt(vol_hex,10);
+	return r;
+	
+} catch (e) {
+	return "Error";
+}
+
+]]></CONVERSION>
+        </FB>
+      </FEEDBACK>
+    </EXP>
+    <EXP ID="?">
+      <NAME>Power</NAME>
+      <REGEX><![CDATA[\*S[N|A]POWR(.*)]]></REGEX>
+      <FEEDBACK>
+        <FB ID="?">
+          <NAME>PowerStatus</NAME>
+          <FBID>POWER</FBID>
+          <CONVERSION><![CDATA[try {
+var vol_hex = data.toString();
+	var r = parseInt(vol_hex,10);
+	return r;
+	
+} catch (e) {
+	return "Error";
+}
+
+]]></CONVERSION>
+        </FB>
+      </FEEDBACK>
+    </EXP>
+  </EXPRESSIONS>
+  <INCOMING>
+    <TERM>0A</TERM>
+    <SCRIPT><![CDATA[//Incoming bytes are contained in var 'data'
+//Build your data packets by appending 'data' to var 'this.serialdata'
+//Leftover bytes can be stored in 'this.serialdata'
+//pass complete feedback packets to 'this.handleFeedbackPacket(data)';]]></SCRIPT>
+    <ASCII>True</ASCII>
+  </INCOMING>
+  <SHARED>
+    <SCRIPT><![CDATA[THIS_DEVICE.OnGUILoaded = function(Name){
+	//This function is called by the API whenever a new page is loaded
+	try{
+		
+		GUIAPI.Debug.WriteLine("Getting Feedback from " + THIS_DEVICE.Name);
+		THIS_DEVICE.updateVolume();
+		THIS_DEVICE.getPowerStatus();	
+		
+	}catch(e){
+		alert(THIS_DEVICE.Name + ".OnGUILoaded error:" + e);
+	}
+};
+
+THIS_DEVICE.OnGUIWake = function(){
+	//This function is called by the API whenever the iOS or Android device wakes from sleep
+	try{
+	
+	}catch(e){
+		alert(THIS_DEVICE.Name + ".OnGUIWake error:" + e);
+	}
+};
+
+THIS_DEVICE.OnGUIWillGoto = function(Name){
+	//This function is called by the API before a page jump
+	try{
+	
+	}catch(e){
+		alert(THIS_DEVICE.Name + ".OnGUIWillGoto error:" + e);
+	}
+};
+
+THIS_DEVICE.updateVolume = function() {
+	THIS_DEVICE.getAudioVolume();
+	setTimeout(THIS_DEVICE.updateVolume,200);
+}
+]]></SCRIPT>
+  </SHARED>
+  <SETTINGS>
+    <SETTING NAME="debug_mode"><![CDATA[true]]></SETTING>
+    <NOTES><![CDATA[THESE SETTINGS ARE FOR USE WITH A BC1 or BC2 ONLY.
+
+debug_mode - If set to true, all responses from the Switch will be printed to Project Editor's debug window. Default is false.  This is a boolean and should not be in quotes.]]></NOTES>
+  </SETTINGS>
+</SCRIPTDEVICE>

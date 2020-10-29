@@ -1,0 +1,26 @@
+<SERIALDEVICE ID="?">
+  <NAME>ARCAM</NAME>
+  <PORT>1</PORT>
+  <COMMANDS>
+    <COMMAND ID="?">
+      <NAME>PowerRequest</NAME>
+      <DATA>bwc:send232hex:1:21010001F00D:</DATA>
+    </COMMAND>
+    <COMMAND ID="?">
+      <NAME>VolumnUp</NAME>
+      <DATA>bwc:send232termstr:1:0D:2101080210100D</DATA>
+    </COMMAND>
+    <COMMAND ID="?">
+      <NAME>VolumnDown</NAME>
+      <DATA>bwc:send232termstr:1:0D:2101080210110D</DATA>
+    </COMMAND>
+    <COMMAND ID="?">
+      <NAME>PowerON</NAME>
+      <DATA>bwc:send232termstr:1:0D:21010802107B0D</DATA>
+    </COMMAND>
+    <COMMAND ID="?">
+      <NAME>PowerOFF</NAME>
+      <DATA>bwc:send232termstr:1:0D:21010802107C0D</DATA>
+    </COMMAND>
+  </COMMANDS>
+</SERIALDEVICE>

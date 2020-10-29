@@ -1,0 +1,510 @@
+<SCRIPTDEVICE ID="?">
+  <NAME>Sensibo</NAME>
+  <NOTES><![CDATA[There are many ways to achieve web REST API infomation exchange in all languages.
+In PUSH, through a series of testing and blind searching, XMLHttpRequest is found to be most compatible with the control system.
+
+Here is a good reference webpage that describes the functionality of smlhttprequest:
+https://javascript.info/xmlhttprequest
+This script device was built based on the above web page's explaination and insturctions.
+There are other websites that explains this concept, however, their enviornment are not as similar as the above website.
+Hence following the above link is recommended.
+
+In PUSH/BitWise Javascript API, the "GUIAPI.HTTP"/"CTRAPI.HTTP" provide some basic GET/POST function to HTTP pages only,
+They will not be suitable for any infomation to a HTTPS protocol for the following reasons:
+1. Security/Privacy
+2. Complexity
+3. Any API calls that needs key for authentication
+4. Headers Specification
+5. Possibly more.
+
+The ideal applications to these built in GUIAPI.HTTP/CTRAPI.HTTP will be API calls within the local network that are not security/privacy sensitive, e.g. send IP command to TV (no authentication).
+At this stage, only basic GET and POST functions are built in this script device so it should work with most web REST APIs including Domotz,  including Magri's Link Tap device etc.
+Unleashed is tricky as it uses an encoded signature as extra layer of security and current there is no way to generate such signature in PUSH's enviornment.
+https://portal.domotz.com/developers/?shell#
+https://apidocs.unleashedsoftware.com/AuthenticationHelp
+https://www.link-tap.com/#!/api-for-developers
+
+This will be investigated in future but the chance is very tiny as these signature methods are relatively new and constantly updated, chance of PUSH supporting dependencies like these are very little.
+
+More functions are available to build more esaily as the biggest roadblock has been overcome and this should advance our control system greatly.
+jazor.he@gmail.com
+
+
+https://developers.home-assistant.io/docs/en/external_api_rest.html
+
+api_token for Office Pi4: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiI4YzA2Njk4YjRhYTE0MTNlOWJkZmI5NjdkY2I5NDc3YyIsImlhdCI6MTU3OTEzNDM1NywiZXhwIjoxODk0NDk0MzU3fQ.Y0fZuJdFBqbAFC47P-eC0TLudQZaHpZsiCPwxE7cI8k
+
+api_token for jazor macbook: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiIwYTBiNDdkODQ5ZTM0NzNjYmY4ZDk4N2QzODU0NDZkOCIsImlhdCI6MTU3ODYxNjAxNCwiZXhwIjoxODkzOTc2MDE0fQ.3-3aeF2Mdm2PVomEPPi5Qwf5AQnk5_OA0rAGMCvqo1U
+
+List of Feedback for sensibo
+"SENS_ROOM_TEMP";
+"SENS_POWER";
+"SENS_SETTEMP";
+"SENS_MODE";
+"SENS_FAN";
+]]></NOTES>
+  <PROTOCOL>API</PROTOCOL>
+  <PORT>
+  </PORT>
+  <IP>
+  </IP>
+  <AUTORC>true</AUTORC>
+  <FUNCTIONS>
+    <FUNCTION ID="?">
+      <NAME>SensiboGet_acState</NAME>
+      <PARMS>
+      </PARMS>
+      <SCRIPT><![CDATA[if(ON_GUI){
+	
+	//THIS_DEVICE.SETTINGS.base_url + "/" + THIS_DEVICE.SETTINGS.podID + "/?fields=acState&apiKey=" + THIS_DEVICE.SETTINGS.api_key
+	THIS_DEVICE.DoGetRequest(THIS_DEVICE.SETTINGS.podID + "/?fields=acState,measurements&apiKey=" + THIS_DEVICE.SETTINGS.api_key,'SensiboPostHandler');
+	//THIS_DEVICE.DoGetRequest("pE8DXbpQ/?fields=*&apiKey=VHhXmKJHC7zEEvGOEc9vgE8yeFS0Gr",'SensiboPostHandler');
+	GUIAPI.Debug.WriteLine("Line6 ");
+	//setTimeout(function(){
+	//	THIS_DEVICE.GetDeviceStatus(deviceID)
+	//	}, 150);
+}
+
+return "";]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>Power_On</NAME>
+      <PARMS>
+      </PARMS>
+      <SCRIPT><![CDATA[var data = JSON.stringify({
+  "acState": {
+    "on": true
+  }
+});
+
+if(ON_GUI){
+	
+	THIS_DEVICE.DoPostRequest("/" + THIS_DEVICE.SETTINGS.podID + "/acStates?apiKey=" + THIS_DEVICE.SETTINGS.api_key,'SensiboPowerHandler',data);
+	GUIAPI.Debug.WriteLine("Line10");
+	//setTimeout(function(){
+	//	THIS_DEVICE.GetDeviceStatus(deviceID)
+	//	}, 150);
+	
+	
+}
+return "";]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>Power_Off</NAME>
+      <PARMS>
+      </PARMS>
+      <SCRIPT><![CDATA[var data = JSON.stringify({
+  "acState": {
+    "on": false
+  }
+});
+
+if(ON_GUI){
+	
+	THIS_DEVICE.DoPostRequest("/" + THIS_DEVICE.SETTINGS.podID + "/acStates?apiKey=" + THIS_DEVICE.SETTINGS.api_key,'SensiboPowerHandler',data);
+	//setTimeout(function(){
+	//	THIS_DEVICE.GetDeviceStatus(deviceID)
+	//	}, 150);
+	
+	
+}
+return "";]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>Sensibo_SetTempUp</NAME>
+      <PARMS>
+      </PARMS>
+      <SCRIPT><![CDATA[if(ON_GUI){
+
+	THIS_DEVICE.DoGetRequest(THIS_DEVICE.SETTINGS.podID + "/?fields=acState&apiKey=" + THIS_DEVICE.SETTINGS.api_key,'SensiboRaiseTempHandler');
+	GUIAPI.Debug.WriteLine("Line6 ");
+
+}
+
+return "";]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>Sensibo_SetTempDown</NAME>
+      <PARMS>
+      </PARMS>
+      <SCRIPT><![CDATA[if(ON_GUI){
+
+	THIS_DEVICE.DoGetRequest(THIS_DEVICE.SETTINGS.podID + "/?fields=acState&apiKey=" + THIS_DEVICE.SETTINGS.api_key,'SensiboLowerTempHandler');
+	GUIAPI.Debug.WriteLine("Line6 ");
+
+}
+
+return "";]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>Power_Toggle</NAME>
+      <PARMS>
+      </PARMS>
+      <SCRIPT><![CDATA[powerStatusVal = GUIAPI.GetFeedback("SENS_POWER");
+var setPower = !powerStatusVal;
+
+var data = JSON.stringify({
+  "acState": {
+    "on": setPower
+  }
+});
+
+if(ON_GUI){
+	
+	THIS_DEVICE.DoPostRequest("/" + THIS_DEVICE.SETTINGS.podID + "/acStates?apiKey=" + THIS_DEVICE.SETTINGS.api_key,'SensiboPowerHandler',data);
+	GUIAPI.Debug.WriteLine("Line10");
+	//setTimeout(function(){
+	//	THIS_DEVICE.GetDeviceStatus(deviceID)
+	//	}, 150);
+	
+	
+}
+
+return "";]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>Mode_Switch</NAME>
+      <PARMS>setMode</PARMS>
+      <SCRIPT><![CDATA[var data = JSON.stringify({
+  "acState": {
+    "mode": setMode
+  }
+});
+
+if(ON_GUI){
+	
+	THIS_DEVICE.DoPostRequest("/" + THIS_DEVICE.SETTINGS.podID + "/acStates?apiKey=" + THIS_DEVICE.SETTINGS.api_key,'SensiboPowerHandler',data);
+	GUIAPI.Debug.WriteLine("Line10");
+	//setTimeout(function(){
+	//	THIS_DEVICE.GetDeviceStatus(deviceID)
+	//	}, 150);
+	
+	
+}
+return "";]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>Fan_Switch</NAME>
+      <PARMS>setFanLevel</PARMS>
+      <SCRIPT><![CDATA[var data = JSON.stringify({
+  "acState": {
+    "fanLevel": setFanLevel
+  }
+});
+
+if(ON_GUI){
+	
+	THIS_DEVICE.DoPostRequest("/" + THIS_DEVICE.SETTINGS.podID + "/acStates?apiKey=" + THIS_DEVICE.SETTINGS.api_key,'SensiboPowerHandler',data);
+	GUIAPI.Debug.WriteLine("Line10");
+	//setTimeout(function(){
+	//	THIS_DEVICE.GetDeviceStatus(deviceID)
+	//	}, 150);
+	
+}
+return "";]]></SCRIPT>
+    </FUNCTION>
+  </FUNCTIONS>
+  <EXPRESSIONS />
+  <INCOMING>
+    <TERM>0D0A</TERM>
+    <SCRIPT><![CDATA[]]></SCRIPT>
+    <ASCII>True</ASCII>
+  </INCOMING>
+  <SHARED>
+    <SCRIPT><![CDATA[var deviceArray = [];
+
+THIS_DEVICE.pollForUpdate = function () {
+
+	var i = 0, loop_length = i++, loop_speed = THIS_DEVICE.SETTINGS.PollFrequencySeconds*1000;
+
+	function loop(){
+		i= 1; 
+	  THIS_DEVICE.SensiboGet_acState();
+		if (i===loop_length) clearInterval(handler);
+	}
+
+	var handler = setInterval(loop, loop_speed);
+
+};
+
+THIS_DEVICE.OnGUILoaded = function(Name){
+	//This function is called by the API whenever a new page is loaded
+	try{
+		THIS_DEVICE.RegisterHTTPHandlers();
+		
+		// Get all feedback IDs for requests
+		var FBIDs = GUIAPI.PageFBIDsWithPrefix("SENS");
+		GUIAPI.Debug.WriteLine("Number of FBIDs:" + FBIDs.length);
+		
+		for(var i = 0; i < FBIDs.length;i++){
+			GUIAPI.Debug.WriteLine("This FBID is:" + FBIDs[i]);
+			}
+		
+		//GUIAPI.Debug.WriteLine("Type:" + deviceArray[0][0]);
+		//GUIAPI.Debug.WriteLine("ID" + deviceArray[0][1]);
+		
+		THIS_DEVICE.pollForUpdate();
+	
+	}catch(e){
+		alert(THIS_DEVICE.Name + ".OnGUILoaded error:" + e);
+	}
+};
+  
+THIS_DEVICE.RegisterHTTPHandlers = function(){
+
+};
+	
+GUIAPI.HTTP.AddHandler('SensiboPostHandler',function(response){
+		
+	//GUIAPI.Debug.WriteLine("Line46 " + unescape(response));
+	var obj = JSON.parse(unescape(response));
+	//GUIAPI.Debug.WriteLine(obj.result.acState.targetTemperature);
+	//GUIAPI.Debug.WriteLine(obj.result.acState.mode);
+	//GUIAPI.Debug.WriteLine(obj.result.acState.fanLevel);
+	
+	var roomTemp = "SENS_ROOM_TEMP";
+	var roomTempVal = obj.result.measurements.temperature;		
+	GUIAPI.ShowFeedback(roomTemp,roomTempVal,true);
+	//GUIAPI.Debug.WriteLine(roomTempVal);
+	
+	var powerStatus = "SENS_POWER";
+	var powerStatusVal = obj.result.acState.on;	
+	//GUIAPI.Debug.WriteLine(powerStatusVal);
+	if (powerStatusVal == true) {
+		onStatus = 1;
+	} else {
+		onStatus = 0;
+	}
+	GUIAPI.ShowFeedback(powerStatus,onStatus,true);	
+	
+	var setTemp = "SENS_SETTEMP";
+	var setTempVal = obj.result.acState.targetTemperature;
+	GUIAPI.ShowFeedback(setTemp,setTempVal,true);
+	//GUIAPI.Debug.WriteLine(setTempVal);
+	
+	var mode = "SENS_MODE";
+	var modeVal = obj.result.acState.mode;	
+	GUIAPI.ShowFeedback(mode,modeVal,true);
+	//GUIAPI.Debug.WriteLine(modeVal);
+	
+	if (modeVal == "cool") {
+		var modeCool = 1;
+		var modeHeat = 0;
+		var modeDry  = 0;
+		var modeAuto = 0;
+		var modeEco  = 0;
+	}
+	if (modeVal == "heat") {
+		var modeCool = 0;
+		var modeHeat = 1;
+		var modeDry  = 0;
+		var modeAuto = 0;
+		var modeEco  = 0;
+	}
+	if (modeVal == "dry") {
+		var modeCool = 0;
+		var modeHeat = 0;
+		var modeDry  = 1;
+		var modeAuto = 0;
+		var modeEco  = 0;
+	}
+	if (modeVal == "auto") {
+		var modeCool = 0;
+		var modeHeat = 0;
+		var modeDry  = 0;
+		var modeAuto = 1;
+		var modeEco  = 0;
+	}
+	if (modeVal == "eco") {
+		var modeCool = 0;
+		var modeHeat = 0;
+		var modeDry  = 0;
+		var modeAuto = 0;
+		var modeEco  = 1;
+	}
+	
+	GUIAPI.ShowFeedback("SENS_MODE_COOL",modeCool,true);
+	GUIAPI.ShowFeedback("SENS_MODE_HEAT",modeHeat,true);
+	GUIAPI.ShowFeedback("SENS_MODE_DRY", modeDry,true);
+	GUIAPI.ShowFeedback("SENS_MODE_AUTO",modeAuto,true);
+	GUIAPI.ShowFeedback("SENS_MODE_ECO", modeEco,true);
+
+	var fan = "SENS_FAN";
+	var fanVal = obj.result.acState.fanLevel;	
+	GUIAPI.ShowFeedback(fan,fanVal,true);
+	//GUIAPI.Debug.WriteLine(fanVal);
+	
+	if (fanVal == "high") {
+		var fanHigh   = 1;
+		var fanMedium = 0;
+		var fanLow    = 0;
+		var fanAuto   = 0;
+	}
+	if (fanVal == "medium") {
+		var fanHigh   = 0;
+		var fanMedium = 1;
+		var fanLow    = 0;
+		var fanAuto   = 0;
+	}
+	if (fanVal == "low") {
+		var fanHigh   = 0;
+		var fanMedium = 0;
+		var fanLow    = 1;
+		var fanAuto   = 0;
+	}
+	if (fanVal == "auto") {
+		var fanHigh   = 0;
+		var fanMedium = 0;
+		var fanLow    = 0;
+		var fanAuto   = 1;
+	}
+	
+	GUIAPI.ShowFeedback("SENS_FAN_HIGH",  fanHigh,true);
+	GUIAPI.ShowFeedback("SENS_FAN_MEDIUM",fanMedium,true);
+	GUIAPI.ShowFeedback("SENS_FAN_LOW",   fanLow,true);
+	GUIAPI.ShowFeedback("SENS_FAN_AUTO",  fanAuto,true);
+	
+});
+	
+GUIAPI.HTTP.AddHandler('SensiboPowerHandler',function(response){
+		
+	//GUIAPI.Debug.WriteLine("Line69 " + unescape(response));
+	var obj = JSON.parse(unescape(response));
+
+	var powerStatus = "SENS_POWER";
+	var powerStatusVal = obj.result.acState.on;	
+	GUIAPI.ShowFeedback(powerStatus,powerStatusVal,true);
+	//GUIAPI.Debug.WriteLine(powerStatusVal);
+
+});
+	
+GUIAPI.HTTP.AddHandler('SensiboRaiseTempHandler',function(response){
+			
+	//GUIAPI.Debug.WriteLine("Line83 " + unescape(response));
+		
+	var obj = JSON.parse(unescape(response));
+	
+	var setTempVal = obj.result.acState.targetTemperature;
+	//GUIAPI.Debug.WriteLine("current set Temp " + setTempVal);
+	
+	targetTemp = (setTempVal + 1);
+	//GUIAPI.Debug.WriteLine("New Set Temp " + targetTemp);
+	
+	var data = JSON.stringify({
+		"acState": {
+			"targetTemperature": targetTemp
+		}
+	});
+
+	if(ON_GUI){
+
+		THIS_DEVICE.DoPostRequest("/" + THIS_DEVICE.SETTINGS.podID + "/acStates?apiKey=" + THIS_DEVICE.SETTINGS.api_key,'SensiboPostHandler',data);
+		//var setTemp = "SENS_SETTEMP";
+		GUIAPI.ShowFeedback(setTemp,targetTemp,true);
+		
+	}return "";
+});
+	
+GUIAPI.HTTP.AddHandler('SensiboLowerTempHandler',function(response){
+		
+	//GUIAPI.Debug.WriteLine("Line83 " + unescape(response));
+	
+	var obj = JSON.parse(unescape(response));
+	
+	var setTempVal = obj.result.acState.targetTemperature;
+	//GUIAPI.Debug.WriteLine("current set Temp " + setTempVal);
+	
+	targetTemp = (setTempVal - 1);
+	//GUIAPI.Debug.WriteLine("New Set Temp " + targetTemp);
+	
+	var data = JSON.stringify({
+		"acState": {
+			"targetTemperature": targetTemp
+		}
+	});
+
+	if(ON_GUI){
+
+		THIS_DEVICE.DoPostRequest("/" + THIS_DEVICE.SETTINGS.podID + "/acStates?apiKey=" + THIS_DEVICE.SETTINGS.api_key,'SensiboPostHandler',data);
+		//var setTemp = "SENS_SETTEMP";
+		GUIAPI.ShowFeedback(setTemp,targetTemp,true);
+		
+	}return "";
+});
+
+	
+THIS_DEVICE.DoPostRequest = function(request,handler,json){
+	
+	try{
+		
+		if (json === undefined) {
+		json = "";
+			}
+
+		var url = 'https://home.sensibo.com/api/v2/pods/'+ request;
+		var headers = {
+			'METHOD': 'POST',
+			'Content-Type': 'application/json',
+			'responseType' : 'json'
+
+		};
+		GUIAPI.HTTP.DoPOSTEX(handler, url, headers, json);
+	}catch(e){
+		alert('DoPostRequest: ' + e);
+	}
+};
+
+THIS_DEVICE.DoGetRequest = function(request,handler,json){
+	//xhr.open('POST', THIS_DEVICE.SETTINGS.base_url + "/" + THIS_DEVICE.SETTINGS.podID + "/acStates?apiKey=" + THIS_DEVICE.SETTINGS.api_key);
+	//xhr.setRequestHeader('Content-Type', 'application/json');
+	
+	try{
+		
+		//This is a wrapper function to do and handle an HTTP POST
+		//This gets called from all the device control functions (in the functions tab)
+		if (json === undefined) {
+		json = "";
+			}
+
+		var url = 'https://home.sensibo.com/api/v2/pods/'+ request;
+		var headers = {
+			'METHOD': 'GET',
+			'Content-Type': 'application/json',
+			'responseType' : 'json'
+
+		};
+		GUIAPI.HTTP.DoPOSTEX(handler, url, headers, json);
+	}catch(e){
+		alert('DoGetRequest: ' + e);
+	}
+};
+
+THIS_DEVICE.OnGUIWake = function(){
+	//This function is called by the API whenever the iOS or Android device wakes from sleep
+	try{
+	
+	}catch(e){
+		alert(THIS_DEVICE.Name + ".OnGUIWake error:" + e);
+	}
+};
+
+THIS_DEVICE.OnGUIWillGoto = function(Name){
+	//This function is called by the API before a page jump
+	try{
+	
+	}catch(e){
+		alert(THIS_DEVICE.Name + ".OnGUIWillGoto error:" + e);
+	}
+};
+
+]]></SCRIPT>
+  </SHARED>
+  <SETTINGS>
+    <SETTING NAME="api_key"><![CDATA["VHhXmKJHC7zEEvGOEc9vgE8yeFS0Gr"]]></SETTING>
+    <SETTING NAME="base_url"><![CDATA["https://home.sensibo.com/api/v2/pods/"]]></SETTING>
+    <SETTING NAME="podID"><![CDATA["pE8DXbpQ"]]></SETTING>
+    <SETTING NAME="DebuggingOn"><![CDATA[true]]></SETTING>
+    <SETTING NAME="PollFrequencySeconds"><![CDATA[1]]></SETTING>
+    <NOTES><![CDATA[]]></NOTES>
+  </SETTINGS>
+</SCRIPTDEVICE>

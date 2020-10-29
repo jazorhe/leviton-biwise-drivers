@@ -1,0 +1,234 @@
+<SCRIPTDEVICE ID="?">
+  <AUTORC>true</AUTORC>
+  <NAME>APC</NAME>
+  <NOTES><![CDATA[]]></NOTES>
+  <PROTOCOL>TCP</PROTOCOL>
+  <PORT>23</PORT>
+  <IP>192.168.0.253</IP>
+  <FUNCTIONS>
+    <FUNCTION ID="?">
+      <NAME>Send_TCP_User_Name</NAME>
+      <PARMS>User</PARMS>
+      <SCRIPT><![CDATA[return User + "\r\n";]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>Send_TCP_Password</NAME>
+      <PARMS>Password</PARMS>
+      <SCRIPT><![CDATA[return Password + "\r\n";]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>Send_TCP_Logout</NAME>
+      <PARMS>
+      </PARMS>
+      <SCRIPT><![CDATA[return "exit\r\n";]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>Send_Login</NAME>
+      <PARMS>
+      </PARMS>
+      <SCRIPT><![CDATA[return THIS_DEVICE.SETTINGS.User + "\r\n" + THIS_DEVICE.SETTINGS.Pass + "\r\n";]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>Send_TCP_Reboot_all</NAME>
+      <PARMS>
+      </PARMS>
+      <SCRIPT><![CDATA[return "olDlyReboot all\r\n";]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>Send_TCP_Reboot</NAME>
+      <PARMS>val</PARMS>
+      <SCRIPT><![CDATA[return "olDlyReboot " + val + "\r\n";]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>Send_TCP_Reboot_Range</NAME>
+      <PARMS>val1,val2</PARMS>
+      <SCRIPT><![CDATA[return "olDlyReboot " + val1 + "-" + val2 + "\r\n";]]></SCRIPT>
+    </FUNCTION>
+  </FUNCTIONS>
+  <EXPRESSIONS>
+    <EXP ID="?">
+      <NAME>All Feedback</NAME>
+      <REGEX><![CDATA[(.*)]]></REGEX>
+      <FEEDBACK>
+        <FB ID="?">
+          <NAME>All Feedback</NAME>
+          <FBID>JAP_All</FBID>
+          <CONVERSION><![CDATA[return data]]></CONVERSION>
+        </FB>
+      </FEEDBACK>
+    </EXP>
+    <EXP ID="?">
+      <NAME>Zone1 Source</NAME>
+      <REGEX><![CDATA[^.*vl 10,(.*)]]></REGEX>
+      <FEEDBACK>
+        <FB ID="?">
+          <NAME>JAP_Z1</NAME>
+          <FBID>JAP_Z1</FBID>
+          <CONVERSION><![CDATA[switch(data){
+	case "0":
+		return "No input";
+		break;
+	case "10":
+		return THIS_DEVICE.SETTINGS.Input1Name;
+		break;
+	case "11":
+		return THIS_DEVICE.SETTINGS.Input2Name;
+		break;
+	case "12":
+		return THIS_DEVICE.SETTINGS.Input3Name;
+		break;
+	case "13":
+		return THIS_DEVICE.SETTINGS.Input4Name;
+		break;
+	case "14":
+		return THIS_DEVICE.SETTINGS.Input5Name;
+		break;
+	case "15":
+		return THIS_DEVICE.SETTINGS.Input6Name;
+		break;
+	case "16":
+		return THIS_DEVICE.SETTINGS.Input7Name;
+		break;
+	case "17":
+		return THIS_DEVICE.SETTINGS.Input8Name;
+		break;
+	case "18":
+		return THIS_DEVICE.SETTINGS.Input8Name;
+		break;	
+		
+}
+return "";
+]]></CONVERSION>
+        </FB>
+      </FEEDBACK>
+    </EXP>
+    <EXP ID="?">
+      <NAME>Login</NAME>
+      <REGEX><![CDATA[^(User Name :)]]></REGEX>
+      <FEEDBACK>
+        <FB ID="?">
+          <NAME>JAP_Login</NAME>
+          <FBID>JAP_Login</FBID>
+          <CONVERSION><![CDATA[setTimeout(THIS_DEVICE.Send_Login, 100);
+return "Login attempted...";]]></CONVERSION>
+        </FB>
+      </FEEDBACK>
+    </EXP>
+    <EXP ID="?">
+      <NAME>Login2</NAME>
+      <REGEX><![CDATA[^(Wrong username or password!)]]></REGEX>
+      <FEEDBACK>
+        <FB ID="?">
+          <NAME>JAP_Login2</NAME>
+          <FBID>JAP_Login2</FBID>
+          <CONVERSION><![CDATA[setTimeout(THIS_DEVICE.Send_Login, 100);
+return "Login attempted...";]]></CONVERSION>
+        </FB>
+      </FEEDBACK>
+    </EXP>
+  </EXPRESSIONS>
+  <INCOMING>
+    <TERM>0D0A</TERM>
+    <SCRIPT><![CDATA[//Incoming bytes are contained in var 'data'
+//Build your data packets by appending 'data' to var 'this.serialdata'
+//Leftover bytes can be stored in 'this.serialdata'
+//pass complete feedback packets to 'this.handleFeedbackPacket(data)';]]></SCRIPT>
+    <ASCII>True</ASCII>
+  </INCOMING>
+  <SHARED>
+    <SCRIPT><![CDATA[THIS_DEVICE.FBPrefix = "APC_";
+THIS_DEVICE.API = null;
+
+if(ON_GUI){
+	THIS_DEVICE.API = GUIAPI;
+}
+if(ON_CONTROLLER){
+	THIS_DEVICE.API = CTRLAPI;
+}
+// Track the State of the TCP Connection
+THIS_DEVICE.Connected = false;
+
+// Automatic Login Procedure
+if(ON_CONTROLLER){
+	try{
+		// Login when the controller boots
+		setTimeout(function () {
+			THIS_DEVICE.Send_Login();
+			THIS_DEVICE.Connected = true;
+		}, 200);	
+		
+		// This event is called automatically upon TCP connection
+		THIS_DEVICE.onTCPConnected = function(){  
+			// Login if this event was called as a result of a disconnect
+			if(THIS_DEVICE.Connected === false){
+				THIS_DEVICE.Send_Login();
+				//THIS_DEVICE.Connected = true;
+				CTRLAPI.Debug.WriteLine("Reconnected to APC");
+			}
+		};
+		
+		// Set flag to false when the socket closes
+		THIS_DEVICE.onTCPClosed = function(){
+			THIS_DEVICE.Connected = false;
+			CTRLAPI.Debug.WriteLine("Socket to APC Closed!");
+		};
+		
+		
+	} catch (e) {
+		alert(e);
+	}
+}
+
+// This function logs in to the JAP Switch
+THIS_DEVICE.JAPLogin = function (){
+	THIS_DEVICE.Send_TCP_User_Name;
+	setTimeout(function () {
+		THIS_DEVICE.Send_TCP_User_Name;
+		THIS_DEVICE.Connected = true;
+		THIS_DEVICE.API.Debug.WriteLine("Connected to APC!");
+	}, 50);
+	
+
+};
+
+/***** Default Script Device Callbacks ****/
+
+THIS_DEVICE.OnGUILoaded = function(Name){
+	//This function is called by the API whenever a new page is loaded
+	try{
+			
+	}catch(e){
+		alert(THIS_DEVICE.Name + ".OnGUILoaded error:" + e);
+	}
+};
+
+THIS_DEVICE.OnGUIWake = function(){
+	//This function is called by the API whenever the iOS or Android device wakes from sleep
+	try{
+	
+	}catch(e){
+		alert(THIS_DEVICE.Name + ".OnGUIWake error:" + e);
+	}
+};
+
+THIS_DEVICE.OnGUIWillGoto = function(Name){
+	//This function is called by the API before a page jump
+	try{
+	
+	}catch(e){
+		alert(THIS_DEVICE.Name + ".OnGUIWillGoto error:" + e);
+	}
+};
+
+
+]]></SCRIPT>
+  </SHARED>
+  <SETTINGS>
+    <SETTING NAME="User"><![CDATA["apc"]]></SETTING>
+    <SETTING NAME="Pass"><![CDATA["apc"]]></SETTING>
+    <SETTING NAME="debug_mode"><![CDATA[true]]></SETTING>
+    <NOTES><![CDATA[THESE SETTINGS ARE FOR USE WITH A BC1 or BC2 ONLY.
+
+debug_mode - If set to true, all responses from the Switch will be printed to Project Editor's debug window. Default is false.  This is a boolean and should not be in quotes.]]></NOTES>
+  </SETTINGS>
+</SCRIPTDEVICE>

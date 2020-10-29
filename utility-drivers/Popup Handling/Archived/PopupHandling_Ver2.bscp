@@ -1,0 +1,361 @@
+<SCRIPTDEVICE ID="?">
+  <NAME>PopupHandling_Ver2</NAME>
+  <NOTES><![CDATA[This script device handles popups in a way that we could automate some of the process. 
+
+Currently it deals especially with tracking which room the user is in and buffering this information in the script device.
+When a foxtel page is opened, the correct volumn bar and local home control tabs will popup accordingly.
+
+
+WHAT YOU NEED TO DO:
+1. Name your pages correctly:
+- Rooms should always start with the same prefix, e.g. "LIVING_SourceSelection" means this is a living room page
+- Volumn popup pages should start with the "POPUP_Vol_" followed by the room prefix, e.g. "POPUP_Vol_LIVING"
+
+2. On your SourceSelection Page (Or anywhere else you wish to track the user's room), programme the button:
+- On pressing a button, (or on released), run script device function
+- Choose setRoomName
+- Set parameter to the room prefix, e.g. "LIVING" as parameter means after pressing the button, the user will be marked in the living room
+- Multiple users can exist because this parameter is stored internal in the device used
+
+3. Be sure to have a dummy button linked to the desired popup page placed in the page which you wish to open it in:
+- It is the only way for the script to reconise what popup to show
+- For instance, create a button that navigates to "Vol-LIVING" in the "Source-AppleTV" page
+- Recommandation: Create one button, then copy and paste on top of it, and edit this new pated button. Repeat. This way you won't have
+dummy buttons laying all over the page. Now drag and select all dummy buttons and place accross pages
+- Recommandation: No need to attach an image to the button, but it has to have pysical size 10 x10 pixels so that you can click select it
+- Create dummy buttons in the order of "from bottom to top layer", this way you can decide, when multiple popups are in present, which is on top of others
+- When creating dummy buttons, if you want the control popups that are in the lower layers to the current popup, set "Popup Animation > Style" to "Control", i.e. do not block the other popups' buttons
+
+
+This script device can also be used to:
+- Bring up multiple popups at once
+- Automatically bring popups when certain pages are opened
+- Track which room the user is in using a variable, and bring up correlating popups when needed
+- Aviod popups interfering with each other in different circumstances, highly editable
+- Automatically closing popups after a specific period of time
+- etc
+
+
+Possible functions for future development:
+1.
+2.
+3.
+
+In progress (do not use):
+1.
+2.
+3.
+
+Bugs found:
+1.
+2.
+3.
+
+jazor.he@gmail.com
+]]></NOTES>
+  <PROTOCOL>232</PROTOCOL>
+  <PORT>1</PORT>
+  <IP />
+  <AUTORC>true</AUTORC>
+  <FUNCTIONS>
+    <FUNCTION ID="?">
+      <NAME>PopVol</NAME>
+      <PARMS>room</PARMS>
+      <SCRIPT><![CDATA[try {
+	var volpopup  = "Vol-" + room;
+	GUIAPI.PopupController.ShowPopup(volpopup, 
+		GUIAPI.POPUPSETTINGS.FROM.FADE, GUIAPI.POPUPSETTINGS.TO.BOTTOMCENTER, 
+		GUIAPI.POPUPSETTINGS.SPEED.FAST, GUIAPI.POPUPSETTINGS.NONMODAL, 
+		GUIAPI.POPUPSETTINGS.CONTROL);
+		
+	var masterpop  = "MasterPop";
+	GUIAPI.PopupController.ShowPopup(masterpop, 
+		GUIAPI.POPUPSETTINGS.FROM.FADE, GUIAPI.POPUPSETTINGS.TO.BOTTOMCENTER, 
+		GUIAPI.POPUPSETTINGS.SPEED.FAST, GUIAPI.POPUPSETTINGS.NONMODAL, 
+		GUIAPI.POPUPSETTINGS.CONTROL);
+} catch (e) {
+	alert("PopVol: Script failed." + e);
+};
+
+return ""]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>PopLoading</NAME>
+      <PARMS />
+      <SCRIPT><![CDATA[try {
+	GUIAPI.PopupController.ShowPopup("LoadingAnimation", 
+		GUIAPI.POPUPSETTINGS.FROM.FADE, 
+		GUIAPI.POPUPSETTINGS.TO.CENTER, 
+		GUIAPI.POPUPSETTINGS.SPEED.FAST, 
+		GUIAPI.POPUPSETTINGS.MODAL, 
+		GUIAPI.POPUPSETTINGS.CONTROL);
+
+} catch (e) {
+	alert("PopLoading: Script failed." + e);
+};
+
+return ""]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>setRoomName</NAME>
+      <PARMS>room</PARMS>
+      <SCRIPT><![CDATA[GUIAPI.StoreSerializedObject("User_Tag", {name: "User", room: room});
+return ""]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>PopRoomControl</NAME>
+      <PARMS>Type</PARMS>
+      <SCRIPT><![CDATA[try {
+	GUIAPI.RetrieveSerializedObject("User_Tag", function(obj){
+		if (obj) {
+			var room = obj.room;
+			switch (Type) {
+				case "L":
+					subpage = "Lighting-";
+					closepage = "Blinds-";
+					GUIAPI.PopupController.ClosePopup("Vol-" + room);
+					break;
+				case "B":
+					subpage = "Blinds-";
+					closepage = "Lighting-";
+					GUIAPI.PopupController.ClosePopup("Vol-" + room);
+					break;
+				case "V":
+					THIS_DEVICE.closePopup_RoomControl();
+					return ""
+					break;
+					
+			}
+
+			var closename = closepage + room;
+			var popname  =  subpage + room;	
+			GUIAPI.PopupController.ClosePopup(closename);
+			GUIAPI.PopupController.ShowPopup(popname, 
+				GUIAPI.POPUPSETTINGS.FROM.FADE, GUIAPI.POPUPSETTINGS.TO.TOPCENTER, 
+				GUIAPI.POPUPSETTINGS.SPEED.FAST, GUIAPI.POPUPSETTINGS.NONMODAL, 
+				GUIAPI.POPUPSETTINGS.CONTROL);
+		}
+	});
+	
+} catch (e) {
+	alert("PopRoomControl: Script failed. " + e);
+}
+
+return ""]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>closePopup_RoomControl</NAME>
+      <PARMS />
+      <SCRIPT><![CDATA[try {
+	GUIAPI.RetrieveSerializedObject("User_Tag", function(obj){
+		if (obj) {
+			room = obj.room;
+			GUIAPI.PopupController.ClosePopup("Lighting-" + room);
+			GUIAPI.PopupController.ClosePopup("Blinds-" + room);
+			GUIAPI.PopupController.ClosePopup("Numbers-DTV-" + room);
+			GUIAPI.PopupController.ClosePopup("Channels-DTV-" + room);
+			GUIAPI.PopupController.ClosePopup("PopUp-AccessControl");
+			GUIAPI.PopupController.ClosePopup("PopUp-PowerOff");
+			GUIAPI.PopupController.ClosePopup("PopUp-ServicePage");
+			GUIAPI.PopupController.ClosePopup("PopUp-LoadingPage");
+		
+		var volpopup  = "Vol-" + room;
+		GUIAPI.PopupController.ShowPopup(volpopup, 
+			GUIAPI.POPUPSETTINGS.FROM.FADE, GUIAPI.POPUPSETTINGS.TO.BOTTOMCENTER, 
+			GUIAPI.POPUPSETTINGS.SPEED.FAST, GUIAPI.POPUPSETTINGS.NONMODAL, 
+			GUIAPI.POPUPSETTINGS.CONTROL);				
+		}
+	});
+	
+	GUIAPI.RetrieveSerializedObject("Foxtel_Name", function(foxtelinfo){
+		if (foxtelinfo) {
+			var foxy = foxtelinfo.fox;
+			foxy = foxy.substring(7);
+			GUIAPI.PopupController.ClosePopup("Numbers-" + foxy);
+			GUIAPI.PopupController.ClosePopup("Channels-" + foxy);					
+		}
+	});
+	
+} catch (e) {
+	alert("closePopup_RoomControl: Script failed. " + e);
+}
+
+return ""]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>PopUtility</NAME>
+      <PARMS>Type</PARMS>
+      <SCRIPT><![CDATA[try {
+
+	switch (Type) {
+		case "A":
+			var popname = "PopUp-AccessControl";
+			break;
+		case "P":
+			var popname = "PopUp-PowerOff";
+			break;
+		case "S":
+			var popname = "PopUp-ServicePage";
+			break;
+		case "L":
+			var popname = "LoadingAnimation";
+			break;
+	}
+	
+	GUIAPI.PopupController.ShowPopup(popname, 
+		GUIAPI.POPUPSETTINGS.FROM.FADE, GUIAPI.POPUPSETTINGS.TO.CENTER, 
+		GUIAPI.POPUPSETTINGS.SPEED.NORMAL, GUIAPI.POPUPSETTINGS.MODAL, 
+		GUIAPI.POPUPSETTINGS.CONTROL);
+		
+	if (Type == "L") {
+		THIS_DEVICE.delay(2000);
+		GUIAPI.PopupController.ClosePopup(popname);
+	}
+	
+} catch (e) {
+	alert("PopUtility: Script failed. " + e);
+}
+
+return ""]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>PopTVControl</NAME>
+      <PARMS>Type</PARMS>
+      <SCRIPT><![CDATA[try {	
+	switch (Type) {
+		
+		case "N":
+			GUIAPI.RetrieveSerializedObject("User_Tag", function(roominfo){
+				if (roominfo) {
+					var room = roominfo.room;
+					poppage = "Numbers-DTV-" + room;
+					GUIAPI.PopupController.ShowPopup(poppage, 
+						GUIAPI.POPUPSETTINGS.FROM.FADE, GUIAPI.POPUPSETTINGS.TO.TOPCENTER, 
+						GUIAPI.POPUPSETTINGS.SPEED.FAST, GUIAPI.POPUPSETTINGS.NONMODAL, 
+						GUIAPI.POPUPSETTINGS.CONTROL);
+				}
+			});
+			break;
+			
+		case "C":
+			GUIAPI.RetrieveSerializedObject("User_Tag", function(roominfo){
+				if (roominfo) {
+					var room = roominfo.room;
+					poppage = "Channels-DTV-" + room;
+					GUIAPI.PopupController.ShowPopup(poppage, 
+						GUIAPI.POPUPSETTINGS.FROM.FADE, GUIAPI.POPUPSETTINGS.TO.TOPCENTER, 
+						GUIAPI.POPUPSETTINGS.SPEED.FAST, GUIAPI.POPUPSETTINGS.NONMODAL, 
+						GUIAPI.POPUPSETTINGS.CONTROL);
+				}
+			});
+			break;
+			
+		case "FN":
+			GUIAPI.RetrieveSerializedObject("Foxtel_Name", function(foxtelinfo){
+				if (foxtelinfo) {
+					var foxy = foxtelinfo.fox;
+					foxy = foxy.substring(7);
+					poppage = "Numbers-" + foxy;
+					GUIAPI.PopupController.ShowPopup(poppage, 
+						GUIAPI.POPUPSETTINGS.FROM.FADE, GUIAPI.POPUPSETTINGS.TO.TOPCENTER, 
+						GUIAPI.POPUPSETTINGS.SPEED.FAST, GUIAPI.POPUPSETTINGS.NONMODAL, 
+						GUIAPI.POPUPSETTINGS.CONTROL);			
+				}
+			});
+			break;
+			
+		case "FC":
+			GUIAPI.RetrieveSerializedObject("Foxtel_Name", function(foxtelinfo){
+				if (foxtelinfo) {
+					var foxy = foxtelinfo.fox;
+					foxy = foxy.substring(7);
+					poppage = "Channels-" + foxy;
+					GUIAPI.PopupController.ShowPopup(poppage, 
+						GUIAPI.POPUPSETTINGS.FROM.FADE, GUIAPI.POPUPSETTINGS.TO.TOPCENTER, 
+						GUIAPI.POPUPSETTINGS.SPEED.FAST, GUIAPI.POPUPSETTINGS.NONMODAL, 
+						GUIAPI.POPUPSETTINGS.CONTROL);			
+				}
+			});		
+			break;			
+	}
+	
+} catch (e) {
+	alert("PopTVControl: Script failed. " + e);
+}
+
+return ""]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>delay</NAME>
+      <PARMS>milliseconds</PARMS>
+      <SCRIPT><![CDATA[try{
+	var start = new Date().getTime();
+		for (var i = 0; i < 1e7; i++) {
+			if ((new Date().getTime() - start) > milliseconds){
+				break;
+			}
+		}
+} catch (e) {
+	alert("delay: Script failed. " + e);
+}
+return ""]]></SCRIPT>
+    </FUNCTION>
+  </FUNCTIONS>
+  <EXPRESSIONS />
+  <INCOMING>
+    <TERM>0D0A</TERM>
+    <SCRIPT><![CDATA[]]></SCRIPT>
+    <ASCII>True</ASCII>
+  </INCOMING>
+  <SHARED>
+    <SCRIPT><![CDATA[/***** Default Script Device Callbacks ****/
+
+THIS_DEVICE.OnGUILoaded = function(Name){
+	try{
+			
+		if (Name.startsWith("Source")) {
+			GUIAPI.RetrieveSerializedObject("User_Tag", function(obj){
+				if (obj) {
+					THIS_DEVICE.PopVol(obj.room);
+				} else {
+					alert("Pull Room Info - PopVol: " + "Script failed.");
+				}
+								
+			});
+		};
+			
+		if (Name.startsWith("Source-FOXTEL-")) {
+			GUIAPI.StoreSerializedObject("Foxtel_Name", {name: "User", fox: Name});
+		};
+		
+	}catch(e){
+		alert(THIS_DEVICE.Name + ".OnGUILoaded error:" + e);
+	}
+};
+
+THIS_DEVICE.OnGUIWake = function(){
+	//This function is called by the API whenever the iOS or Android device wakes from sleep
+	try{
+	
+	}catch(e){
+		alert(THIS_DEVICE.Name + ".OnGUIWake error:" + e);
+	}
+};
+
+THIS_DEVICE.OnGUIWillGoto = function(Name){
+	//This function is called by the API before a page jump
+	try{
+			
+	}catch(e){
+		alert(THIS_DEVICE.Name + ".OnGUIWillGoto error:" + e);
+	}
+};
+
+THIS_DEVICE.ClosePopups = function() {
+	GUIAPI.PopupController.ClosePopup("LoadingAnimation");
+};]]></SCRIPT>
+  </SHARED>
+  <SETTINGS>
+    <NOTES><![CDATA[]]></NOTES>
+  </SETTINGS>
+</SCRIPTDEVICE>

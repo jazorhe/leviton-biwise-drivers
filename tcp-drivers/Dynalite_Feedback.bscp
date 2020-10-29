@@ -1,0 +1,289 @@
+<SCRIPTDEVICE ID="?">
+  <AUTORC>true</AUTORC>
+  <NAME>Dynalite_Feedback</NAME>
+  <NOTES><![CDATA[Just Add Power Luxul Control Driver V1.0 29/3/19
+
+Compatibility - BC1 or BC2 Controller and a Luxul Switch
+
+Tested on AMS-2426P FW 4.1
+
+Protocol - TCP
+
+PORT - 23
+
+
+
+********************************************SPECIAL NOTE*************************************************************
+IMPORTANT!
+
+The Luxul switch requires a login every time a socket connection is made.
+
+
+*************************************************  BC-1/2  ******************************************************************
+
+The BC1 and BC2 controllers have automatic socket management built-in.  All that should be necessary is to edit the user settings for the correct user and password for
+the Luxul Switcht.
+
+
+Functions ------------------------------------------------------------------------------------------------------------------------
+
+Route Input (TX) to Output (RX)
+
+
+Feedback-------------------------------------------------------------------------------------------------------------------------
+]]></NOTES>
+  <PROTOCOL>TCP</PROTOCOL>
+  <PORT>23</PORT>
+  <IP>192.168.0.101</IP>
+  <FUNCTIONS>
+    <FUNCTION ID="?">
+      <NAME>Keep_Alive</NAME>
+      <PARMS>
+      </PARMS>
+      <SCRIPT><![CDATA[return "\r\n";]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>SetAreaPreset</NAME>
+      <PARMS>PresetNum, AreaNum</PARMS>
+      <SCRIPT><![CDATA[var Command = "P " + PresetNum + " " + AreaNum + "\r\n";
+
+return Command;]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>RequestChannelLevel</NAME>
+      <PARMS>ChannelNum, AreaNum</PARMS>
+      <SCRIPT><![CDATA[var Command = "RCL " + ChannelNum,  + " " + AreaNum + "\r\n";
+
+return Command;]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>setGlobalFeedback</NAME>
+      <PARMS>inFeedbackID, inData</PARMS>
+      <SCRIPT><![CDATA[THIS_DEVICE.SetGlobalFeedbackData(inFeedbackID, inData);
+return "";]]></SCRIPT>
+    </FUNCTION>
+  </FUNCTIONS>
+  <EXPRESSIONS>
+    <EXP ID="?">
+      <NAME>All Feedback</NAME>
+      <REGEX><![CDATA[(.*)]]></REGEX>
+      <FEEDBACK>
+        <FB ID="?">
+          <NAME>All Feedback</NAME>
+          <FBID>DYN_All</FBID>
+          <CONVERSION><![CDATA[CTRLAPI.Debug.WriteLine("Found Feedback");
+
+return data]]></CONVERSION>
+        </FB>
+      </FEEDBACK>
+    </EXP>
+    <EXP ID="?">
+      <NAME>FoundRampingAction</NAME>
+      <REGEX><![CDATA[(Stop Fade Channel .*)]]></REGEX>
+      <FEEDBACK>
+        <FB ID="?">
+          <NAME>JAP_Z1</NAME>
+          <FBID>JAP_Z1</FBID>
+          <CONVERSION><![CDATA[THIS_DEVICE.RequestChannelLevel();
+var StopFadeMessage = data;
+var n = StopFadeMessage.indexOf("Channel");
+StopFadeMessage[n + 7]
+
+return "StopFadeMessage[n + 7]";
+]]></CONVERSION>
+        </FB>
+      </FEEDBACK>
+    </EXP>
+    <EXP ID="?">
+      <NAME>ChannelLevel</NAME>
+      <REGEX><![CDATA[Channel Level (.*)]]></REGEX>
+      <FEEDBACK>
+        <FB ID="?">
+          <NAME>ChannelFeedback</NAME>
+          <FBID>DYN_CHN_FEEDBACK</FBID>
+          <CONVERSION><![CDATA[var ChannelLevelMessage = data.toString();
+
+var channelStart = ChannelLevelMessage.indexOf("Channel");
+var channelEnd = ChannelLevelMessage.indexOf(", ");
+var channelNum = ChannelLevelMessage.substring(channelStart + 8, channelEnd);
+
+ChannelLevelMessage = ChannelLevelMessage.substring(channelEnd + 2, ChannelLevelMessage.length);
+
+var levelStart = ChannelLevelMessage.indexOf("Level");
+var levelEnd = ChannelLevelMessage.indexOf("%, ");
+var levelNum = ChannelLevelMessage.substring(levelStart + 6, levelEnd);
+
+ChannelLevelMessage = ChannelLevelMessage.substring(levelEnd + 2, ChannelLevelMessage.length);
+
+var areaStart = ChannelLevelMessage.indexOf("Area");
+var areaEnd = ChannelLevelMessage.indexOf(", ");
+var areaNum = ChannelLevelMessage.substring(areaStart + 5, areaEnd);
+
+var inFeedbackID = "DYNALITE_BAV_A" + areaNum + "_C" + channelNum + "_LVL"
+// Example "DYNALITE_BAV_A15_C1_LVL"
+var inData = levelNum
+
+//THIS_DEVICE.SetGlobalFeedbackData(inFeedbackID, inData);
+//CTRLAPI.Debug.WriteLine("Set Feedback");
+
+return levelNum;
+]]></CONVERSION>
+        </FB>
+      </FEEDBACK>
+    </EXP>
+    <EXP ID="?">
+      <NAME>ResponseChannelLevel</NAME>
+      <REGEX><![CDATA[Reply with Current Level (.*)]]></REGEX>
+      <FEEDBACK>
+        <FB ID="?">
+          <NAME>ResponseChannelFeedback</NAME>
+          <FBID>DYN_CHN_FEEDBACK</FBID>
+          <CONVERSION><![CDATA[// Reply with Current Level Ch 1, Area 15, TargLev 50%, CurrLev 50%, Join ffhex
+var ChannelLevelMessage = data.toString();
+
+var channelStart = ChannelLevelMessage.indexOf("Ch");
+var channelEnd = ChannelLevelMessage.indexOf(", ");
+var channelNum = ChannelLevelMessage.substring(channelStart + 3, channelEnd);
+
+ChannelLevelMessage = ChannelLevelMessage.substring(channelEnd + 2, ChannelLevelMessage.length);
+
+var areaStart = ChannelLevelMessage.indexOf("Area");
+var areaEnd = ChannelLevelMessage.indexOf(", ");
+var areaNum = ChannelLevelMessage.substring(areaStart + 5, areaEnd);
+
+ChannelLevelMessage = ChannelLevelMessage.substring(areaEnd + 2, ChannelLevelMessage.length);
+
+var levelStart = ChannelLevelMessage.indexOf("CurrLev");
+var levelEnd = ChannelLevelMessage.indexOf("%, J");
+var levelNum = ChannelLevelMessage.substring(levelStart + 8, levelEnd);
+
+var inFeedbackID = "DYNALITE_BAV_A" + areaNum + "_C" + channelNum + "_LVL"
+// Example "DYNALITE_BAV_A15_C1_LVL"
+var inData = levelNum
+
+//THIS_DEVICE.SetGlobalFeedbackData(inFeedbackID, inData);//
+//CTRLAPI.Debug.WriteLine("Set Feedback");
+
+return levelNum]]></CONVERSION>
+        </FB>
+      </FEEDBACK>
+    </EXP>
+    <EXP ID="?">
+      <NAME>FoundPresetChange</NAME>
+      <REGEX><![CDATA[(Preset .*)]]></REGEX>
+      <FEEDBACK>
+        <FB ID="?">
+          <NAME>JAP_Z1</NAME>
+          <FBID>JAP_Z1</FBID>
+          <CONVERSION><![CDATA[THIS_DEVICE.RequestChannelLevel();
+var StopFadeMessage = data;
+var n = StopFadeMessage.indexOf("Area");
+StopFadeMessage[n + 5]
+
+return data;
+]]></CONVERSION>
+        </FB>
+      </FEEDBACK>
+    </EXP>
+  </EXPRESSIONS>
+  <INCOMING>
+    <TERM>0A</TERM>
+    <SCRIPT><![CDATA[//Incoming bytes are contained in var 'data'
+//Build your data packets by appending 'data' to var 'this.serialdata'
+//Leftover bytes can be stored in 'this.serialdata'
+//pass complete feedback packets to 'this.handleFeedbackPacket(data)';]]></SCRIPT>
+    <ASCII>True</ASCII>
+  </INCOMING>
+  <SHARED>
+    <SCRIPT><![CDATA[THIS_DEVICE.FBPrefix = "DYN_";
+THIS_DEVICE.API = null;
+
+if(ON_GUI){
+	THIS_DEVICE.API = GUIAPI;
+}
+if(ON_CONTROLLER){
+	THIS_DEVICE.API = CTRLAPI;
+}
+// Track the State of the TCP Connection
+THIS_DEVICE.Connected = false;
+
+// Automatic Login Procedure
+if(ON_CONTROLLER){
+	try{
+		// Login when the controller boots
+		setTimeout(function () {
+			THIS_DEVICE.Keep_Alive();
+			THIS_DEVICE.Connected = true;
+		}, 200);
+
+		// This event is called automatically upon TCP connection
+		THIS_DEVICE.onTCPConnected = function(){
+			// Login if this event was called as a result of a disconnect
+			if(THIS_DEVICE.Connected === false){
+				THIS_DEVICE.Keep_Alive();
+				THIS_DEVICE.Connected = true;
+				CTRLAPI.Debug.WriteLine("Reconnected to Dynalite Gateway");
+			}
+		};
+
+		// Set flag to false when the socket closes
+		THIS_DEVICE.onTCPClosed = function(){
+			THIS_DEVICE.Connected = false;
+			CTRLAPI.Debug.WriteLine("Socket to Dynalite Gateway Closed!");
+		};
+
+
+	} catch (e) {
+		alert(e);
+	}
+}
+
+
+/***** Default Script Device Callbacks ****/
+
+THIS_DEVICE.OnGUILoaded = function(Name){
+	//This function is called by the API whenever a new page is loaded
+	try{
+
+	}catch(e){
+		alert(THIS_DEVICE.Name + ".OnGUILoaded error:" + e);
+	}
+};
+
+THIS_DEVICE.OnGUIWake = function(){
+	//This function is called by the API whenever the iOS or Android device wakes from sleep
+	try{
+
+	}catch(e){
+		alert(THIS_DEVICE.Name + ".OnGUIWake error:" + e);
+	}
+};
+
+THIS_DEVICE.OnGUIWillGoto = function(Name){
+	//This function is called by the API before a page jump
+	try{
+
+	}catch(e){
+		alert(THIS_DEVICE.Name + ".OnGUIWillGoto error:" + e);
+	}
+};
+
+
+THIS_DEVICE.SetGlobalFeedbackData = function(inFeedbackID, inData) {
+	if(ON_GUI) {
+		GUIAPI.ShowFeedback(inFeedbackID, inData);
+	}
+
+	if(ON_CONTROLLER) {
+		CTRLAPI.ShowFeedback(inFeedbackID, inData);
+	}
+};
+]]></SCRIPT>
+  </SHARED>
+  <SETTINGS>
+    <SETTING NAME="debug_mode"><![CDATA[true]]></SETTING>
+    <NOTES><![CDATA[THESE SETTINGS ARE FOR USE WITH A BC1 or BC2 ONLY.
+
+debug_mode - If set to true, all responses from the Switch will be printed to Project Editor's debug window. Default is false.  This is a boolean and should not be in quotes.]]></NOTES>
+  </SETTINGS>
+</SCRIPTDEVICE>

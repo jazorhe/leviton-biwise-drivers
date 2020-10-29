@@ -1,0 +1,396 @@
+<SCRIPTDEVICE ID="?">
+  <NAME>HomePageWidgetHandler</NAME>
+  <NOTES><![CDATA[]]></NOTES>
+  <PROTOCOL>API</PROTOCOL>
+  <PORT>
+  </PORT>
+  <IP>
+  </IP>
+  <AUTORC>true</AUTORC>
+  <FUNCTIONS>
+    <FUNCTION ID="?">
+      <NAME>callOpenWeatherAPI</NAME>
+      <PARMS>
+      </PARMS>
+      <SCRIPT><![CDATA[var xhr = new XMLHttpRequest();
+xhr.withCredentials = true;
+
+xhr.addEventListener("readystatechange", function() {
+  if(this.readyState === 4) {
+    console.log(this.responseText);
+  }
+});
+
+xhr.open("GET", "https://api.openweathermap.org/data/2.5/weather?zip=3131,au&appid=dedd53f05b221008ed6125f1a64e8cb9");
+xhr.setRequestHeader('Content-Type', 'application/json');
+
+xhr.send();
+
+xhr.onload = function() {
+  if (xhr.status != 200) { 
+	// analyze HTTP status of the response
+    alert("Error ${xhr.status}: ${xhr.statusText}"); // e.g. 404: Not Found
+  } else {
+	// show the result
+	alert(xhr.response);
+    // alert(`Done, got ${xhr.response.length} bytes`); // responseText is the server
+  }
+};
+
+xhr.onerror = function() {
+  alert("Request failed");
+};
+
+xhr.timeout = 10000;
+
+return xhr.response;
+]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>hideWeatherWidget</NAME>
+      <PARMS>
+      </PARMS>
+      <SCRIPT><![CDATA[try{
+	THIS_DEVICE.weatherWidgetDiv.style.display = "none";
+} catch(e) {
+	setTimeout(function() {
+		THIS_DEVICE.hideWeatherWidget();
+	}, 500);
+}
+
+return "";]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>InitiateTestImage</NAME>
+      <PARMS>
+      </PARMS>
+      <SCRIPT><![CDATA[var style = document.createElement("style");
+style.innerHTML = ".test-image { margin: 0 auto; z-index: 101; position: absolute; left: 20px; top: 20px;}";
+
+document.head.appendChild(style);
+
+THIS_DEVICE.testImage = document.createElement("div");
+THIS_DEVICE.testImage.classList.add("test-image");
+THIS_DEVICE.testImage.style.display = "block";
+
+
+THIS_DEVICE.testImage.innerHTML = "<img src='images/01d.png' alt='Sunny Day'>";
+	
+document.body.appendChild(THIS_DEVICE.testImage);	
+
+return "";
+
+]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>InitiateWeatherWidget</NAME>
+      <PARMS>
+      </PARMS>
+      <SCRIPT><![CDATA[var zip    = THIS_DEVICE.SETTINGS.zip;
+var city   = THIS_DEVICE.SETTINGS.city;
+var apiKey = THIS_DEVICE.SETTINGS.apiKey;
+var date   = new Date();
+
+var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+var days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+var hours = date.getHours();
+var minutes = date.getMinutes();
+var seconds = date.getSeconds();
+if (hours < 10) hours = "0" + hours;
+if (minutes < 10) minutes = "0" + minutes;
+if (seconds < 10) seconds = "0" + seconds;
+date = "at " + hours + ":" + minutes;
+
+
+var xhr = new XMLHttpRequest();
+xhr.withCredentials = true;
+
+xhr.addEventListener("readystatechange", function() {
+  if(this.readyState === 4) {
+    console.log(this.responseText);
+  }
+});
+
+xhr.open("GET", "https://api.openweathermap.org/data/2.5/weather?zip=" + zip + ",au&appid=" + apiKey);
+xhr.setRequestHeader('Content-Type', 'application/json');
+
+xhr.send();
+
+xhr.onload = function() {
+  if (xhr.status != 200) { 
+	// analyze HTTP status of the response
+    // alert(`Error ${xhr.status}: ${xhr.statusText}`); // e.g. 404: Not Found
+	var icon        = "--";
+	var temp 	    = "--";
+	var feels_like  = "--";
+	var humidity    = "--";
+	var pressure    = "--";
+	var wind        = "--";
+	var location    = "--";
+	var description = "--";
+	} else { 
+	// show the result
+	// alert(responseObj);
+	var responseObj = JSON.parse(xhr.response);
+	var icon        = responseObj.weather[0].icon;
+	var temp 	    = responseObj.main.temp - 273.15;
+	var feels_like  = responseObj.main.feels_like - 273.15;
+	var humidity    = responseObj.main.humidity;
+	var pressure    = responseObj.main.pressure;
+	var wind        = responseObj.wind.speed;
+	var location    = "";
+	var description = responseObj.weather[0].description;
+
+	temp       = temp.toFixed(0);
+	feels_like = feels_like.toFixed(0);
+
+	THIS_DEVICE.WeatherWidgetDivFunc(city, icon, description, temp, feels_like, wind, humidity, pressure, date);
+  }
+};
+
+xhr.onerror = function() {
+  // alert("Request failed");
+  	var icon        = "--";
+	var temp 	    = "--";
+	var feels_like  = "--";
+	var humidity    = "--";
+	var pressure    = "--";
+	var wind        = "--";
+	var location    = "--";
+	var description = "--";
+	
+	THIS_DEVICE.WeatherWidgetDivFunc(city, icon, description, temp, feels_like, wind, humidity, pressure, date);
+
+};
+
+xhr.timeout = 10000;
+
+return "";
+]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>InitiateStyle</NAME>
+      <PARMS>
+      </PARMS>
+      <SCRIPT><![CDATA[var style = document.createElement("style");
+style.innerHTML = "html { -ms-text-size-adjust : 100%; -webkit-text-size-adjust : 100%; font-family : sans-serif;}body { margin : 0;}article,aside,details,figcaption,figure,footer,header,hgroup,main,menu,nav,section,summary { display : block;}audio,canvas,progress,video { display : inline-block; vertical-align : baseline;}audio:not([controls]) { display : none; height : 0;}[hidden],template { display : none;}a { background-color : transparent;}a:active,a:hover { outline : 0;}abbr[title] { border-bottom : 1px dotted;}b,strong { font-weight : 700;}dfn { font-style : italic;}h1 { margin : .67em 0; font-size : 2em;}mark { color : #E5C07B; background : #ff0;}small { font-size : 80%;}sub,sup { position : relative; vertical-align : baseline; font-size : 75%; line-height : 0;}sup { top : -.5em;}sub { bottom : -.25em;}img { border : 0;}svg:not(:root) { overflow : hidden;}figure { margin : 1em 40px;}hr { box-sizing : content-box; height : 0;}pre { overflow : auto;}code,kbd,pre,samp { font-family : monospace, monospace; font-size : 1em;}button,input,optgroup,select,textarea { margin : 0; color : inherit; font : inherit;}button { overflow : visible;}button,select { text-transform : none;}button,html input[type=button],input[type=reset],input[type=submit] { -webkit-appearance : button; cursor : pointer;}button[disabled],html input[disabled] { cursor : default;}button::-moz-focus-inner,input::-moz-focus-inner { padding : 0; border : 0;}input { line-height : normal;}input[type=checkbox],input[type=radio] { box-sizing : border-box; padding : 0;}input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button { height : auto;}input[type=search] { box-sizing : content-box; -webkit-appearance : textfield;}input[type=search]::-webkit-search-cancel-button,input[type=search]::-webkit-search-decoration { -webkit-appearance : none;}fieldset { margin : 0 2px; padding : .35em .625em .75em; border : 1px solid silver;}legend { border : 0;}textarea { overflow : auto;}optgroup { font-weight : 700;}table { border-collapse : collapse; border-spacing : 0;}legend,td,th { padding : 0;}.weather-right--type1:first-of-type { width : 300px; min-height : 200px;}.weather-right__temperature { width : auto; color : #E5C07B; font-family : Arial, sans-serif!important; font-size : 70px; font-weight : 600; line-height : 1; letter-spacing : -5px;}.weather-right__layout { display : -webkit-flex; display : -ms-flexbox; display : flex; position : relative; padding : 6.5px 0; -webkit-align-items : center; align-items : center; -ms-flex-align : center; -ms-flex-direction : row; -webkit-flex-direction : row; flex-direction : row; -ms-flex-pack : distribute; -webkit-justify-content : space-around; justify-content : space-around;}.weather-right__item { padding : 2px 0;}.weather-right__item:first-child { min-width : 50px; padding-right : 19px;}.weather-right__item:last-child { font-weight : 600;}.weather-right__items:first-child th { padding-bottom : 5px; border-bottom : 1px solid #ffffff;}.weather-right__items:nth-child(2) .weather-right__item { padding-top : 5px;}.weather-right--type1 .weather-right__temperature { text-align : center;}.weather-right--type2,.weather-right--type3 { width : 120px;}.weather-right--type2 .weather-right__layout { padding : 27px 0;}.weather-right--type2 .weather-right__temperature { text-align : center; font-size : 53px;}.weather-right--type3 .weather-right__layout { display : -webkit-flex; display : flex; display : -ms-flexbox; min-height : 98px; padding : 0; -webkit-align-items : flex-start; align-items : flex-start; -ms-flex-align : start; -ms-flex-direction : column; -webkit-flex-direction : column; flex-direction : column; -ms-flex-pack : justify; -webkit-justify-content : space-between; justify-content : space-between;}.weather-right--type3 .weather-right__temperature { width : auto; margin-top : 15px; margin-bottom : 14px; padding-left : 6px; text-align : center; font-size : 30px; letter-spacing : 0;}.weather-right--type4,.weather-right--type5 { width : 300px;}.weather-right__icon { z-index : 100; display : block; position : absolute; top : 50%; left : 50%; border-radius : 4px; -ms-transform : translateY(-50%); -webkit-transform : translateY(-50%); transform : translateY(-50%);}.weather-right__icon--type1 { top : 50%; -ms-transform : translateY(-50%); -webkit-transform : translateY(-50%); transform : translateY(-50%);}.weather-right__icon--type4 { z-index : 100; display : block; top : -34px; background : 0 0; -ms-transform : translateX(-50%); -webkit-transform : translateX(-50%); transform : translateX(-50%);}.weather-right__icon--type5 { top : 50%; left : 40%; background-color : #191E25; box-shadow : 0 0 1px 1px rgba(0,0,0,.1); -ms-transform : translateY(-50%) rotate(-2deg); -webkit-transform : translateY(-50%) rotate(-2deg); transform : translateY(-50%) rotate(-2deg); -ms-transform-origin : left top; -webkit-transform-origin : left top; transform-origin : left top;}.widget-right { position : relative; width : 300px; border-radius : 6px; box-shadow : 10px -2px 20px 2px rgba(0,0,0,.3);}.widget-right__loading { display : block; position : absolute; top : 50%; left : 50%; width : 50px; height : 50px; min-height : inherit; background : url(../img/widgets/img-loading.gif) 0 0 no-repeat; background-size : 50px 50px!important; -ms-transform : translateX(-25px) translateY(-25px); -webkit-transform : translateX(-25px) translateY(-25px); transform : translateX(-25px) translateY(-25px);}.widget-right--brown { background-image : linear-gradient( to bottom, #191E25, #191E25 );}.widget-right__layout { display : -webkit-flex; display : flex; display : -ms-flexbox; height : initial; min-height : 90px; -webkit-align-items : center; align-items : center; -ms-flex-align : center; -ms-flex-direction : row; -webkit-flex-direction : row; flex-direction : row; -ms-flex-pack : justify; -webkit-justify-content : space-between; justify-content : space-between;}.widget-right__title { max-width : 160px; margin : 0; font-family : Arial, sans-serif!important; font-size : 18px; font-weight : 600; line-height : 1; letter-spacing : 1px;}.widget-right__header { position : relative; width : inherit; border-radius : 6px 6px 0 0;}.widget-right__header .widget-right__layout { margin-left : 10px;}.widget-right__body,.widget-right__footer .widget-right__layout { display : -webkit-flex; display : -ms-flexbox; display : flex; -webkit-align-items : stretch; align-items : stretch; -ms-flex-align : stretch; -ms-flex-direction : row; -webkit-flex-direction : row; flex-direction : row;}.widget-right__footer .widget-right__layout { min-height : 25px; padding : 0 10px; -webkit-align-items : center; align-items : center; -ms-flex-align : center; -ms-flex-pack : justify; -webkit-justify-content : space-between; justify-content : space-between; border-radius: 6px;}.widget-right__footer { border-radius : 0 0 6px 6px;}.widget-right__date { color : #191E25; font-family : Arial, sans-serif!important; font-size : 10px; font-weight : 400; line-height : 1;}.widget-right__header--brown .widget-right__title { color : #E5C07B;}.widget-right__header .widget-right__description { margin : 2px; font-family : Arial, sans-serif!important; font-size : 10px; font-weight : 400; line-height : 1;}.widget-right__footer--brown .widget-right__date,.widget-right__header--brown .widget-right__description { color : #E5C07B;}.widget-right__header--brown { color : #E5C07B; background-image : linear-gradient( to top left, #191E25, #191E25 );}.widget-right__footer--brown .widget-right__link { text-decoration : none; font-family : Arial, sans-serif!important; font-size : 20px; font-weight : 600; line-height : 1;}.widget-right__footer--brown .widget-right__link { padding : 0; color : #E5C07B;}.widget-right__footer--brown .widget-right__link:before { content : ''; display : inline-block; width : 23px; height : 20px; padding-right : 5px; background-size : 20px 20px!important; vertical-align : top;}.widget-right__footer--brown .widget-right__link:before { background : url(../img/widgets/logo-black-owm.svg) 0 0 no-repeat;}.widget-right__logo_white,.widget-right__logo_white_small { background : url(../img/widgets/new_logo_white.png) 50% 50% no-repeat;}.widget-right__logo_white { width : 80px; height : 35px; padding-right : 17px; background-size : 80px 35px;}.widget-right__logo_white_small { width : 55px; height : 24px; margin : 1px; background-size : 55px 24px;}.widget-right__logo_black_small { width : 55px; height : 24px; margin : 1px; background : url(../img/widgets/new_logo_black.png) 50% 50% no-repeat; background-size : 55px 24px;}.widget-right__logo_bnw_small { width : 55px; height : 24px; margin : 1px; background : url(../img/widgets/new_logo_bnw.png) 50% 50% no-repeat; background-size : 55px 24px;}.widget-right__logo_white_extra_small { width : 45px; height : 20px; margin-left : 1px; background : url(../img/widgets/new_logo_white.png) 50% 50% no-repeat; background-size : 45px 20px;}.widget-right__logo_black_extra_small { width : 45px; height : 20px; margin-left : 1px; background : url(../img/widgets/new_logo_black.png) 50% 50% no-repeat; background-size : 45px 20px;}.widget-right__logo_container { float : left;}.widget-right__logo_container_full_width { width : 100%; padding-left : 3px;}.widget-right__negative_top_container { margin-top : -10px;}.widget-right--type1 { width : 300px; height : initial; min-height : 218px; background-image : linear-gradient( to top left, #191E25, #191E25 );}.widget-right--type2,.widget-right--type3 { width : 120px; height : initial; min-height : 170px;}.widget-right--type2 .widget-right__layout { min-height : initial; margin-left : 0; padding : 5px 0; color : #191E25; text-align : center; -ms-flex-pack : center; -webkit-justify-content : center; justify-content : center;}.widget-right--type2 .widget-right__footer .widget-right__layout,.widget-right--type3 .widget-right__footer .widget-right__layout { padding-right : 0;}.widget-right--type2 .widget-right__link { margin : 0 auto; padding-top : 2px; font-size : 11px; font-weight : 400;}.widget-right--type2 .widget-right__footer--brown .widget-right__link:before { content : ''; display : inline-block; width : 14px; height : 14px; margin-right : 3px; padding : 0; background : url(../img/widgets/logo-black-owm.svg) 0 0 no-repeat; background-size : 14px 14px!important; vertical-align : top;}.widget-right--type2 .widget-right__title { font-size : 12px;}.widget-right--type2 .widget-right__description { margin : 0; font-size : 12px;}.widget-right--type3 { min-height : 175px;}.widget-right--type3 .widget-right__layout { min-height : initial; margin-left : 0; padding : 5px 0; color : #191E25; text-align : center; -ms-flex-pack : center; -webkit-justify-content : center; justify-content : center;}.widget-right--type3 .widget-right__link { margin : 0 auto; padding-top : 2px; font-size : 11px; font-weight : 400;}.widget-right--type3 .widget-right__footer--brown .widget-right__link:before { content : ''; display : inline-block; width : 14px; height : 14px; margin-right : 3px; padding : 0; background : url(../img/widgets/logo-black-owm.svg) 0 0 no-repeat; background-size : 14px 14px!important; vertical-align : top;}.widget-right--type3 .widget-right__title { font-size : 12px;}.widget-right--type3 .widget-right__description { margin : 0; font-size : 12px;}.widget-right--type4,.widget-right--type5 { width : 300px; height : initial; background : 0 0; box-shadow : none;}.widget-right--type4 { min-height : 40px; color : #191E25;}.widget-right--type4 .widget-right__layout { display : -ms-flexbox; display : flex; display : -webkit-flex; position : relative; min-height : 40px; padding : 0 10px; border-radius : 3px; -webkit-align-items : center; align-items : center; -ms-flex-align : center; -ms-flex-direction : row; -webkit-flex-direction : row; flex-direction : row; -ms-flex-pack : justify; -webkit-justify-content : space-between; justify-content : space-between;}.widget-right--type4 .widget-right__layout--brown { background-image : linear-gradient( to bottom, #191E25, #191E25 );}.widget-right--type4 .widget-right__description,.widget-right--type4 .widget-right__title { color : #E5C07B; font-family : Arial, sans-serif!important; line-height : 1;}.widget-right--type4 .widget-right__title { max-width : 110px; margin-bottom : 5px; font-size : 14px; font-weight : 600;}.widget-right--type4 .widget-right__description { font-size : 10px; font-weight : 400;}.widget-right--type4 .widget-right__footer--brown .widget-right__link { color : #ea7e30; font-size : 12px;}.widget-right--type4 .widget-right__footer--brown .widget-right__link:before,.widget-right--type5 .widget-right__footer--brown .widget-right__link:before { content : ''; display : inline-block; width : 13px; height : 13px; margin-right : 3px; padding : 0; background : url(../img/widgets/logo-orange-owm.svg) 0 0 no-repeat; background-size : 13px 13px!important; vertical-align : top;}.widget-right--type4 .widget-right__footer--brown .widget-right__date { color : #ea7e30;}.widget-right--type4 .widget-right__footer .widget-right__layout { height : initial; min-height : 20px;}.widget-right--type5 { min-height : 50px;}.widget-right--type5 .widget-right__date { color : #8ce1e1;}.widget-right--type5 .widget-right__layout { display : -ms-flexbox; display : flex; display : -webkit-flex; position : relative; min-height : 40px; padding : 0 10px; border-radius : 3px; -webkit-align-items : center; align-items : center; -ms-flex-align : center; -ms-flex-direction : row; -webkit-flex-direction : row; flex-direction : row; -ms-flex-pack : justify; -webkit-justify-content : space-between; justify-content : space-between;}.widget-right--type5 .widget-right__layout--brown { background-image : linear-gradient( to bottom, #191E25, #191E25 );}.widget-right--type5 .widget-right__description,.widget-right--type5 .widget-right__title { color : #E5C07B; font-family : Arial, sans-serif!important; line-height : 1;}.widget-right--type5 .widget-right__title { max-width : 110px; margin-bottom : 5px; font-size : 14px; font-weight : 600;}.widget-right--type5 .widget-right__description { font-size : 10px; font-weight : 400;}.widget-right--type5 .widget-right__footer--brown .widget-right__link { margin-left : -5px; color : #ea7e30; font-size : 12px;}.widget-right--type5 .widget-right__footer--brown .widget-right__date { color : #ea7e30;}.widget-right--type5 .widget-right__footer .widget-right__layout { height : initial; min-height : 20px;}.weather-right-table { width : 100%; color : #E5C07B; font-family : Arial, sans-serif!important; font-size : 12px; font-weight : 400; line-height : 1.3;}.weather-right-table__item:first-child { min-width : 50px; padding-right : 10px; padding-left : 6px; font-weight : 600;}.weather-right-table__item { padding-top : 2px; padding-bottom : 1px;}.weather-right-card { color : #E5C07B; font-family : Arial, sans-serif!important; font-size : 18px; font-weight : 600; line-height : 1.3;}.weather-right-card--type4 { color : #191E25;}.weather-right-card__item { padding : 5px 0 5px 5px;}.weather-right-card__item:first-child { padding-right : 5px; border-right : 2px solid #ff4f98;}.widget-right__layout { background-color : #191E25; border-radius: 6px;}.weather-right__table { color : #E5C07B; text-align : left; font-family : Arial, sans-serif!important; font-size : 12px; font-weight : 400; line-height : 1;}.text__container { padding: 10px;}.climate__title { color : #E5C07B; font-family : Arial, sans-serif!important; font-size : 24px; font-weight : 600; line-height : 1; letter-spacing : 1px; text-align: center;}.setTemp { color : #E5C07B; font-family : Arial, sans-serif!important; text-align: center; margin: 0; font-size: 78px; font-weight : 700;}.setWord { color : #E5C07B; font-family : Arial, sans-serif!important; text-align: center; margin: 0; padding: 0; font-size: 20px; font-weight : 700;}.feelsLike { color : #86837e; font-family : Arial, sans-serif!important; text-align: center; margin: 0; font-size: 24px; font-weight : 700;}p { padding: 0; margin: 0;}#openweathermap-widget-15 { position : absolute; top : 130px; left : 40px; width : 300px; height : 200px; margin : 0% 0%; transform : scale(1.38); transform-origin : top left;}#climate-widget { position : absolute; top : 130px; left : 476px; width : 415px; height : 277px; margin : 0% 0%; transform-origin : top left; border-radius : 6px; box-shadow : 10px -2px 20px 2px rgba(0,0,0,.3); background-image : linear-gradient( to bottom, #191E25, #191E25 );}#container-clock-widget-15 { position : absolute; top : 185px; left : 911px; width : 415px; height : 277px; margin : 0% 0%; transform-origin : top left; font-family : Arial, sans-serif!important;}.time_container { text-align: center; color : #E5C07B; font-size : 130px; font-weight : 650; margin : 0% 0%; padding : 0% 0%;}.date_container { text-align: center; color : #E5C07B; font-size : 18px; font-weight : 600; margin : 0% 0%; padding : 0% 0%;}#container-climate-widget-15 { padding: 10%;}";
+
+document.head.appendChild(style);
+
+return "";
+
+]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>InitialDigitalClockWidget</NAME>
+      <PARMS>
+      </PARMS>
+      <SCRIPT><![CDATA[var date   = new Date();
+var hours = date.getHours();
+var minutes = date.getMinutes();
+var seconds = date.getSeconds();
+if (hours < 10) hours = "0" + hours;
+if (minutes < 10) minutes = "0" + minutes;
+if (seconds < 10) seconds = "0" + seconds;
+var time = hours + ":" + minutes + " ";
+GUIAPI.ShowFeedback("CLOCK_TIME",time,true);
+
+var days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+GUIAPI.ShowFeedback("CLOCK_DAY", days[date.getDay()], true);
+
+date = months[date.getMonth()] + " " + date.getDate();
+GUIAPI.ShowFeedback("CLOCK_DATE",date,true);
+
+THIS_DEVICE.ClockWidgetDivFunc(time,date);
+
+return "";
+]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>WeatherWidgetDivFunc</NAME>
+      <PARMS>city, icon, description, temp, feels_like, wind, humidity, pressure, date</PARMS>
+      <SCRIPT><![CDATA[var weatherWidgetDivHtml = "<div id='openweathermap-widget-15' class='container-widget container-widget--15'> <div id='container-openweathermap-widget-15'> <div class='widget-right weather-right--type1 widget-right--brown'> <div class='widget-right__header widget-right__header--brown'> <div class='widget-right__layout'> <div> <h2 class='widget-right__title'>${city}, AU</h2> <p class='widget-right__description'>${description} ${date}</p> </div> </div> <img class='weather-right__icon weather-right__icon--type1' alt='Weather in Melbourne, AU' src='images/${icon}.png' width='128' height='128'/> </div> <div class='weather-right weather-right--brown'> <div class='weather-right__layout'> <div class='weather-right__temperature'>${temp}<span>°C</span></div> <div class='weather-right__weather'> <div class='weather-right-card'> <table class='weather-right__table'> <!-- <tbody> --> <tbody> <tr class='weather-right__items'> <th class='weather-right__item' colspan='2'> Details </th> </tr> <tr class='weather-right__items'> <td class='weather-right__item'>Feels like</td> <td class='weather-right__item weather-right__feels'> ${feels_like} <span>°C</span> </td> </tr> <tr class='weather-right__items'> <td class='weather-right__item'>Wind</td> <td class='weather-right__item weather-right__wind-speed'>${wind} m/s</td> </tr> <tr class='weather-right-card__items'> <td class='weather-right__item'>Humidity</td> <td class='weather-right__item weather-right__humidity'>${humidity}%</td> </tr> <tr class='weather-right-card__items'> <td class='weather-right__item'>Pressure</td> <td class='weather-right__item weather-right__pressure'>${pressure} hPa</td> </tr> </tbody> </table> </div> </div> </div> </div> </div> </div> </div>'"
+
+weatherWidgetDivHtml = weatherWidgetDivHtml.replace("${city}",city);
+weatherWidgetDivHtml = weatherWidgetDivHtml.replace("${icon}",icon);
+weatherWidgetDivHtml = weatherWidgetDivHtml.replace("${description}",description);
+weatherWidgetDivHtml = weatherWidgetDivHtml.replace("${temp}",temp);
+weatherWidgetDivHtml = weatherWidgetDivHtml.replace("${feels_like}",feels_like);
+weatherWidgetDivHtml = weatherWidgetDivHtml.replace("${wind}",wind);
+weatherWidgetDivHtml = weatherWidgetDivHtml.replace("${humidity}",humidity);
+weatherWidgetDivHtml = weatherWidgetDivHtml.replace("${pressure}",pressure);
+weatherWidgetDivHtml = weatherWidgetDivHtml.replace("${date}",date);
+
+setTimeout(function() {
+	THIS_DEVICE.weatherWidgetDiv.innerHTML = weatherWidgetDivHtml;
+	document.body.appendChild(THIS_DEVICE.weatherWidgetDiv);
+},500);
+
+return "";]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>ClockWidgetDivFunc</NAME>
+      <PARMS>time, date</PARMS>
+      <SCRIPT><![CDATA[var clockWidgetDivHtml = "<div id='clock-widget'> <div id='container-clock-widget-15'> <div class='time_container'> <p class='time_text'>${time}</p></div> <div class='date_container'> <p class='date_text'>${date}</p></div> </div> </div>";
+clockWidgetDivHtml = clockWidgetDivHtml.replace("${time}",time);
+clockWidgetDivHtml = clockWidgetDivHtml.replace("${date}",date);
+
+
+setTimeout(function() {
+	THIS_DEVICE.clockWidgetDiv.innerHTML = clockWidgetDivHtml;
+	document.body.appendChild(THIS_DEVICE.clockWidgetDiv);
+},500);
+
+return "";]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>launchClockWidget</NAME>
+      <PARMS>
+      </PARMS>
+      <SCRIPT><![CDATA[try{
+	THIS_DEVICE.clockWidgetDiv.style.display = "block";
+}catch(e){
+	setTimeout(function() {
+		THIS_DEVICE.launchClockWidget();
+	}, 500);
+}
+
+return "";]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>launchWeatherWidget</NAME>
+      <PARMS>
+      </PARMS>
+      <SCRIPT><![CDATA[try{
+	THIS_DEVICE.weatherWidgetDiv.style.display = "block";
+}catch(e){
+	setTimeout(function() {
+		THIS_DEVICE.launchWeatherWidget();
+	}, 500);
+}
+
+return "";]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>setClimateWidgetZone</NAME>
+      <PARMS>zone</PARMS>
+      <SCRIPT><![CDATA[GUIAPI.StoreSerializedObject("ClimateWidgetZone", {name: "User", zone: zone});
+return ""]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>launchClimateWidget</NAME>
+      <PARMS>zone</PARMS>
+      <SCRIPT><![CDATA[widget = "ClimateWidget-" + zone;
+
+GUIAPI.PopupController.ShowPopup(widget, 
+	GUIAPI.POPUPSETTINGS.FROM.FADE, GUIAPI.POPUPSETTINGS.TO.TOPCENTER, 
+	GUIAPI.POPUPSETTINGS.SPEED.FAST, GUIAPI.POPUPSETTINGS.NONMODAL, 
+	GUIAPI.POPUPSETTINGS.CONTROL);
+	
+return""]]></SCRIPT>
+    </FUNCTION>
+  </FUNCTIONS>
+  <EXPRESSIONS />
+  <INCOMING>
+    <TERM>0D0A</TERM>
+    <SCRIPT><![CDATA[]]></SCRIPT>
+    <ASCII>True</ASCII>
+  </INCOMING>
+  <SHARED>
+    <SCRIPT><![CDATA[/***** Default Script Device Callbacks ****/
+
+THIS_DEVICE.OnGUILoaded = function(Name){
+	//This function is called by the API whenever a new page is loaded
+	try{
+		if (Name == "__HOME_iPad__") {
+			THIS_DEVICE.InitiateStyle();
+			
+			if (THIS_DEVICE.SETTINGS.displayWeather) {
+			THIS_DEVICE.weatherWidgetDiv = document.createElement("div");
+			THIS_DEVICE.weatherWidgetDiv.classList.add("open-weather-widget");
+			THIS_DEVICE.InitiateWeatherWidget();
+			setTimeout(function() {THIS_DEVICE.launchWeatherWidget();
+			}, 200);
+			}
+			
+			if (THIS_DEVICE.SETTINGS.displayClock) {
+				THIS_DEVICE.clockWidgetDiv = document.createElement("div");
+				THIS_DEVICE.clockWidgetDiv.classList.add("open-clock-widget");
+				THIS_DEVICE.InitialDigitalClockWidget();
+				setTimeout(function() {THIS_DEVICE.launchClockWidget();
+				}, 200);
+			}
+			
+			if (THIS_DEVICE.SETTINGS.displayClimate) {
+				GUIAPI.RetrieveSerializedObject("ClimateWidgetZone", function(obj){
+					if (obj) {
+						THIS_DEVICE.launchClimateWidget(obj.zone);
+					} else {
+						THIS_DEVICE.launchClimateWidget(THIS_DEVICE.SETTINGS.defaultClimateZone);
+					}								
+				});
+			}
+
+			THIS_DEVICE.pollForUpdate();
+		}
+
+	}catch(e){
+		alert(THIS_DEVICE.Name + ".OnGUILoaded error:" + e);
+	}
+};
+
+THIS_DEVICE.OnGUIWake = function(){
+	//This function is called by the API whenever the iOS or Android device wakes from sleep
+	try{
+
+	}catch(e){
+		alert(THIS_DEVICE.Name + ".OnGUIWake error:" + e);
+	}
+};
+
+THIS_DEVICE.OnGUIWillGoto = function(Name){
+	//This function is called by the API before a page jump
+	try{
+
+	}catch(e){
+		alert(THIS_DEVICE.Name + ".OnGUIWillGoto error:" + e);
+	}
+};
+
+
+THIS_DEVICE.pollForUpdate = function () {
+
+	var i = 0, loop_length = i++, loop_speed = THIS_DEVICE.SETTINGS.PollFrequencySeconds*1000;
+
+	function loopWeather(){
+		i= 1;
+		THIS_DEVICE.InitiateWeatherWidget();
+		if (i===loop_length) clearInterval(handlerWeather);
+	}
+
+	function loopClock(){
+		i= 1;
+		THIS_DEVICE.InitialDigitalClockWidget();
+		if (i===loop_length) clearInterval(handlerClock);
+	}
+
+	var handlerWeather = setInterval(loopWeather, loop_speed);
+	var handlerClock   = setInterval(loopClock, 10000);
+
+};
+]]></SCRIPT>
+  </SHARED>
+  <SETTINGS>
+    <SETTING NAME="zip"><![CDATA["3143"]]></SETTING>
+    <SETTING NAME="city"><![CDATA["Armadale"]]></SETTING>
+    <SETTING NAME="apiKey"><![CDATA["dedd53f05b221008ed6125f1a64e8cb9"]]></SETTING>
+    <SETTING NAME="PollFrequencySeconds"><![CDATA[600]]></SETTING>
+    <SETTING NAME="displayClock"><![CDATA[true]]></SETTING>
+    <SETTING NAME="displayWeather"><![CDATA[true]]></SETTING>
+    <SETTING NAME="displayClimate"><![CDATA[true]]></SETTING>
+    <SETTING NAME="defaultClimateZone"><![CDATA["LIVING"]]></SETTING>
+    <NOTES><![CDATA[]]></NOTES>
+  </SETTINGS>
+</SCRIPTDEVICE>

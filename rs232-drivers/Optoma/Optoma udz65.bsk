@@ -1,0 +1,68 @@
+<SOCKETDEVICE ID="?">
+  <NAME>Optoma udz65</NAME>
+  <PROTO>TCP</PROTO>
+  <PORT>23</PORT>
+  <IP>192.168.1.170</IP>
+  <COMMANDS>
+    <COMMAND ID="?">
+      <NAME>Remote On</NAME>
+      <DATA>bwc:tcpcsendhex:7E303031343020310D</DATA>
+    </COMMAND>
+    <COMMAND ID="?">
+      <NAME>Remote Off</NAME>
+      <DATA>bwc:tcpcsendhex:7E303031343020320D</DATA>
+    </COMMAND>
+    <COMMAND ID="?">
+      <NAME>Remote Up</NAME>
+      <DATA>bwc:tcpcsendhex:7E30303134302031300D</DATA>
+    </COMMAND>
+    <COMMAND ID="?">
+      <NAME>Remote Left</NAME>
+      <DATA>bwc:tcpcsendhex:7E30303134302031310D</DATA>
+    </COMMAND>
+    <COMMAND ID="?">
+      <NAME>Remote Enter</NAME>
+      <DATA>bwc:tcpcsendhex:7E30303134302031320D</DATA>
+    </COMMAND>
+    <COMMAND ID="?">
+      <NAME>Remote Right</NAME>
+      <DATA>bwc:tcpcsendhex:7E30303134302031330D</DATA>
+    </COMMAND>
+    <COMMAND ID="?">
+      <NAME>Remote Down</NAME>
+      <DATA>bwc:tcpcsendhex:7E30303134302031340D</DATA>
+    </COMMAND>
+    <COMMAND ID="?">
+      <NAME>Remote Volume -</NAME>
+      <DATA>bwc:tcpcsendhex:7E30303134302031370D</DATA>
+    </COMMAND>
+    <COMMAND ID="?">
+      <NAME>Remote Volume +</NAME>
+      <DATA>bwc:tcpcsendhex:7E30303134302031380D</DATA>
+    </COMMAND>
+    <COMMAND ID="?">
+      <NAME>Remote Menu</NAME>
+      <DATA>bwc:tcpcsendhex:7E30303134302032300D</DATA>
+    </COMMAND>
+    <COMMAND ID="?">
+      <NAME>Remote HDMI1</NAME>
+      <DATA>bwc:tcpcsendhex:7E30303134302034320D</DATA>
+    </COMMAND>
+    <COMMAND ID="?">
+      <NAME>Remote HDMI2</NAME>
+      <DATA>bwc:tcpcsendhex:7E30303134302034330D</DATA>
+    </COMMAND>
+    <COMMAND ID="?">
+      <NAME>Remote Home</NAME>
+      <DATA>bwc:tcpcsendhex:7E30303134302038310D</DATA>
+    </COMMAND>
+    <COMMAND ID="?">
+      <NAME>Remote Return</NAME>
+      <DATA>bwc:tcpcsendhex:7E30303134302038320D</DATA>
+    </COMMAND>
+    <COMMAND ID="?">
+      <NAME>Remote Exit</NAME>
+      <DATA>bwc:tcpcsendhex:7E30303134302037340D</DATA>
+    </COMMAND>
+  </COMMANDS>
+</SOCKETDEVICE>

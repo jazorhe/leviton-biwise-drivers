@@ -1,0 +1,271 @@
+<SCRIPTDEVICE ID="?">
+  <NAME>FeedbackDevice</NAME>
+  <NOTES><![CDATA[]]></NOTES>
+  <PROTOCOL>API</PROTOCOL>
+  <PORT />
+  <IP />
+  <AUTORC>true</AUTORC>
+  <FUNCTIONS>
+    <FUNCTION ID="?">
+      <NAME>setGlobalFeedback</NAME>
+      <PARMS>inFeedbackID, inData</PARMS>
+      <SCRIPT><![CDATA[THIS_DEVICE.SetGlobalFeedbackData(inFeedbackID, inData);
+return "";]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>ClimateFanSpeed</NAME>
+      <PARMS>state</PARMS>
+      <SCRIPT><![CDATA[switch (state) {
+	case "AUTO":
+		THIS_DEVICE.setGlobalFeedback("FAN_AUTO", 1);
+		THIS_DEVICE.setGlobalFeedback("FAN_LOW", 0);
+		THIS_DEVICE.setGlobalFeedback("FAN_MEDIUM", 0);
+		THIS_DEVICE.setGlobalFeedback("FAN_HIGH", 0);
+		break;
+		
+	case "LOW":
+		THIS_DEVICE.setGlobalFeedback("FAN_AUTO", 0);
+		THIS_DEVICE.setGlobalFeedback("FAN_LOW", 1);
+		THIS_DEVICE.setGlobalFeedback("FAN_MEDIUM", 0);
+		THIS_DEVICE.setGlobalFeedback("FAN_HIGH", 0);
+		break;
+		
+	case "MEDIUM":
+		THIS_DEVICE.setGlobalFeedback("FAN_AUTO", 0);
+		THIS_DEVICE.setGlobalFeedback("FAN_LOW", 0);
+		THIS_DEVICE.setGlobalFeedback("FAN_MEDIUM", 1);
+		THIS_DEVICE.setGlobalFeedback("FAN_HIGH", 0);
+		break;
+		
+	case "HIGH":
+		THIS_DEVICE.setGlobalFeedback("FAN_AUTO", 0);
+		THIS_DEVICE.setGlobalFeedback("FAN_LOW", 0);
+		THIS_DEVICE.setGlobalFeedback("FAN_MEDIUM", 0);
+		THIS_DEVICE.setGlobalFeedback("FAN_HIGH", 1);
+		break;
+}
+
+return "";]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>ClimateMode</NAME>
+      <PARMS>mode</PARMS>
+      <SCRIPT><![CDATA[switch (mode) {
+	case "AUTO":
+		THIS_DEVICE.setGlobalFeedback("MODE_AUTO", 1);
+		THIS_DEVICE.setGlobalFeedback("MODE_COOL", 0);
+		THIS_DEVICE.setGlobalFeedback("MODE_HEAT", 0);
+		THIS_DEVICE.setGlobalFeedback("MODE_HUMD", 0);
+		THIS_DEVICE.setGlobalFeedback("MODE_FAN", 0);
+		break;
+		
+	case "COOL":
+		THIS_DEVICE.setGlobalFeedback("MODE_AUTO", 0);
+		THIS_DEVICE.setGlobalFeedback("MODE_COOL", 1);
+		THIS_DEVICE.setGlobalFeedback("MODE_HEAT", 0);
+		THIS_DEVICE.setGlobalFeedback("MODE_HUMD", 0);
+		THIS_DEVICE.setGlobalFeedback("MODE_FAN", 0);
+		break;
+		
+	case "HEAT":
+		THIS_DEVICE.setGlobalFeedback("MODE_AUTO", 0);
+		THIS_DEVICE.setGlobalFeedback("MODE_COOL", 0);
+		THIS_DEVICE.setGlobalFeedback("MODE_HEAT", 1);
+		THIS_DEVICE.setGlobalFeedback("MODE_HUMD", 0);
+		THIS_DEVICE.setGlobalFeedback("MODE_FAN", 0);
+		break;
+		
+	case "HUMD":
+		THIS_DEVICE.setGlobalFeedback("MODE_AUTO", 0);
+		THIS_DEVICE.setGlobalFeedback("MODE_COOL", 0);
+		THIS_DEVICE.setGlobalFeedback("MODE_HEAT", 0);
+		THIS_DEVICE.setGlobalFeedback("MODE_HUMD", 1);
+		THIS_DEVICE.setGlobalFeedback("MODE_FAN", 0);
+		break;
+		
+	case "FAN":
+		THIS_DEVICE.setGlobalFeedback("MODE_AUTO", 0);
+		THIS_DEVICE.setGlobalFeedback("MODE_COOL", 0);
+		THIS_DEVICE.setGlobalFeedback("MODE_HEAT", 0);
+		THIS_DEVICE.setGlobalFeedback("MODE_HUMD", 0);
+		THIS_DEVICE.setGlobalFeedback("MODE_FAN", 1);
+		break;
+}
+
+return "";]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>ClimatePower</NAME>
+      <PARMS>state</PARMS>
+      <SCRIPT><![CDATA[switch (state) {
+	case "ON":
+		THIS_DEVICE.setGlobalFeedback("CLIMATE_ON", 1);
+		THIS_DEVICE.setGlobalFeedback("CLIMATE_OFF", 0);
+		THIS_DEVICE.setGlobalFeedback("FAN_AUTO", 0);
+		THIS_DEVICE.setGlobalFeedback("FAN_LOW", 0);
+		THIS_DEVICE.setGlobalFeedback("FAN_MEDIUM", 1);
+		THIS_DEVICE.setGlobalFeedback("FAN_HIGH", 0);
+		THIS_DEVICE.setGlobalFeedback("MODE_AUTO", 0);
+		THIS_DEVICE.setGlobalFeedback("MODE_COOL", 1);
+		THIS_DEVICE.setGlobalFeedback("MODE_HEAT", 0);
+		THIS_DEVICE.setGlobalFeedback("MODE_HUMD", 0);
+		THIS_DEVICE.setGlobalFeedback("MODE_FAN", 0);
+		break;
+		
+	case "OFF":
+		THIS_DEVICE.setGlobalFeedback("CLIMATE_ON", 0);
+		THIS_DEVICE.setGlobalFeedback("CLIMATE_OFF", 1);
+		THIS_DEVICE.setGlobalFeedback("FAN_AUTO", 0);
+		THIS_DEVICE.setGlobalFeedback("FAN_LOW", 0);
+		THIS_DEVICE.setGlobalFeedback("FAN_MEDIUM", 0);
+		THIS_DEVICE.setGlobalFeedback("FAN_HIGH", 0);
+		THIS_DEVICE.setGlobalFeedback("MODE_AUTO", 0);
+		THIS_DEVICE.setGlobalFeedback("MODE_COOL", 0);
+		THIS_DEVICE.setGlobalFeedback("MODE_HEAT", 0);
+		THIS_DEVICE.setGlobalFeedback("MODE_HUMD", 0);
+		THIS_DEVICE.setGlobalFeedback("MODE_FAN", 0);
+		break;
+}
+
+return "";]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>SourceTracking</NAME>
+      <PARMS>output,source</PARMS>
+      <SCRIPT><![CDATA[switch (source) {
+	case "F1":
+		THIS_DEVICE.setGlobalFeedback(output+"_F1", 1);
+		THIS_DEVICE.setGlobalFeedback(output+"_F2", 0);
+		THIS_DEVICE.setGlobalFeedback(output+"_F3", 0);
+		THIS_DEVICE.setGlobalFeedback(output+"_AP", 0);
+		THIS_DEVICE.setGlobalFeedback(output+"_PC", 0);
+		THIS_DEVICE.setGlobalFeedback(output+"_CCTV", 0);
+		THIS_DEVICE.setGlobalFeedback(output+"_OCCTV", 0);
+		break;
+		
+	case "F2":
+		THIS_DEVICE.setGlobalFeedback(output+"_F1", 0);
+		THIS_DEVICE.setGlobalFeedback(output+"_F2", 1);
+		THIS_DEVICE.setGlobalFeedback(output+"_F3", 0);
+		THIS_DEVICE.setGlobalFeedback(output+"_AP", 0);
+		THIS_DEVICE.setGlobalFeedback(output+"_PC", 0);
+		THIS_DEVICE.setGlobalFeedback(output+"_CCTV", 0);
+		THIS_DEVICE.setGlobalFeedback(output+"_OCCTV", 0);
+		break;
+		
+	case "F3":
+		THIS_DEVICE.setGlobalFeedback(output+"_F1", 0);
+		THIS_DEVICE.setGlobalFeedback(output+"_F2", 0);
+		THIS_DEVICE.setGlobalFeedback(output+"_F3", 1);
+		THIS_DEVICE.setGlobalFeedback(output+"_AP", 0);
+		THIS_DEVICE.setGlobalFeedback(output+"_PC", 0);
+		THIS_DEVICE.setGlobalFeedback(output+"_CCTV", 0);
+		THIS_DEVICE.setGlobalFeedback(output+"_OCCTV", 0);
+		break;
+		
+	case "AP":
+		THIS_DEVICE.setGlobalFeedback(output+"_F1", 0);
+		THIS_DEVICE.setGlobalFeedback(output+"_F2", 0);
+		THIS_DEVICE.setGlobalFeedback(output+"_F3", 0);
+		THIS_DEVICE.setGlobalFeedback(output+"_AP", 1);
+		THIS_DEVICE.setGlobalFeedback(output+"_PC", 0);
+		THIS_DEVICE.setGlobalFeedback(output+"_CCTV", 0);
+		THIS_DEVICE.setGlobalFeedback(output+"_OCCTV", 0);
+		break;
+		
+	case "PC":
+		THIS_DEVICE.setGlobalFeedback(output+"_F1", 0);
+		THIS_DEVICE.setGlobalFeedback(output+"_F2", 0);
+		THIS_DEVICE.setGlobalFeedback(output+"_F3", 0);
+		THIS_DEVICE.setGlobalFeedback(output+"_AP", 0);
+		THIS_DEVICE.setGlobalFeedback(output+"_PC", 1);
+		THIS_DEVICE.setGlobalFeedback(output+"_CCTV", 0);
+		THIS_DEVICE.setGlobalFeedback(output+"_OCCTV", 0);
+		break;
+
+	case "CCTV":
+		THIS_DEVICE.setGlobalFeedback(output+"_F1", 0);
+		THIS_DEVICE.setGlobalFeedback(output+"_F2", 0);
+		THIS_DEVICE.setGlobalFeedback(output+"_F3", 0);
+		THIS_DEVICE.setGlobalFeedback(output+"_AP", 0);
+		THIS_DEVICE.setGlobalFeedback(output+"_PC", 0);
+		THIS_DEVICE.setGlobalFeedback(output+"_CCTV", 1);
+		THIS_DEVICE.setGlobalFeedback(output+"_OCCTV", 0);
+		break;
+		
+	case "OCCTV":
+		THIS_DEVICE.setGlobalFeedback(output+"_F1", 0);
+		THIS_DEVICE.setGlobalFeedback(output+"_F2", 0);
+		THIS_DEVICE.setGlobalFeedback(output+"_F3", 0);
+		THIS_DEVICE.setGlobalFeedback(output+"_AP", 0);
+		THIS_DEVICE.setGlobalFeedback(output+"_PC", 0);
+		THIS_DEVICE.setGlobalFeedback(output+"_CCTV", 0);
+		THIS_DEVICE.setGlobalFeedback(output+"_OCCTV", 1);
+		break;
+		
+	case "OFF":
+		THIS_DEVICE.setGlobalFeedback(output+"_F1", 0);
+		THIS_DEVICE.setGlobalFeedback(output+"_F2", 0);
+		THIS_DEVICE.setGlobalFeedback(output+"_F3", 0);
+		THIS_DEVICE.setGlobalFeedback(output+"_AP", 0);
+		THIS_DEVICE.setGlobalFeedback(output+"_PC", 0);
+		THIS_DEVICE.setGlobalFeedback(output+"_CCTV", 0);
+		THIS_DEVICE.setGlobalFeedback(output+"_OCCTV", 0);
+		break;
+}
+
+return "";]]></SCRIPT>
+    </FUNCTION>
+  </FUNCTIONS>
+  <EXPRESSIONS />
+  <INCOMING>
+    <TERM>0D0A</TERM>
+    <SCRIPT><![CDATA[]]></SCRIPT>
+    <ASCII>True</ASCII>
+  </INCOMING>
+  <SHARED>
+    <SCRIPT><![CDATA[/***** Default Script Device Callbacks ****/
+
+THIS_DEVICE.OnGUILoaded = function(Name){
+	//This function is called by the API whenever a new page is loaded
+	try{
+	
+	}catch(e){
+		alert(THIS_DEVICE.Name + ".OnGUILoaded error:" + e);
+	}
+};
+
+THIS_DEVICE.OnGUIWake = function(){
+	//This function is called by the API whenever the iOS or Android device wakes from sleep
+	try{
+	
+	}catch(e){
+		alert(THIS_DEVICE.Name + ".OnGUIWake error:" + e);
+	}
+};
+
+THIS_DEVICE.OnGUIWillGoto = function(Name){
+	//This function is called by the API before a page jump
+	try{
+	
+	}catch(e){
+		alert(THIS_DEVICE.Name + ".OnGUIWillGoto error:" + e);
+	}
+};
+
+THIS_DEVICE.SetGlobalFeedbackData = function(inFeedbackID, inData) {
+	if(ON_GUI) {
+		GUIAPI.ShowFeedback(inFeedbackID, inData);	
+	}
+	
+	if(ON_CONTROLLER) {
+		CTRLAPI.ShowFeedback(inFeedbackID, inData);	
+	}
+};
+
+]]></SCRIPT>
+  </SHARED>
+  <SETTINGS>
+    <NOTES><![CDATA[]]></NOTES>
+  </SETTINGS>
+</SCRIPTDEVICE>

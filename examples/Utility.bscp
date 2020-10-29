@@ -1,0 +1,159 @@
+<SCRIPTDEVICE ID="?">
+  <NAME>Utility</NAME>
+  <NOTES><![CDATA[Functions
+----------------------------------------------------------------------------------------------
+
+setFeedback function - use this to set any feedback ID to any value through either a macro on a controller (PC1 and PC2 only) or from a button on the interface. Parameters are:
+- inFBID is the feedback ID you wish to set the value for, and 
+- inValue is the value to assign to the dedicated feedback ID.
+
+]]></NOTES>
+  <PROTOCOL>API</PROTOCOL>
+  <PORT />
+  <IP />
+  <AUTORC>true</AUTORC>
+  <FUNCTIONS>
+    <FUNCTION ID="?">
+      <NAME>setFeedback</NAME>
+      <PARMS>inFBID,inValue</PARMS>
+      <SCRIPT><![CDATA[if(ON_CONTROLLER) {
+	(function(fbid,value) {
+		setTimeout(function() {
+			CTRLAPI.ShowFeedback(fbid,value);
+			
+			(function(fbid2,value2) {
+				setTimeout(function() {
+					CTRLAPI.ShowFeedback(fbid2,value2);
+				},100);
+			})(fbid,value);
+			
+		},100);
+	})(inFBID,inValue);
+} else {
+	GUIAPI.ShowFeedback(inFBID,inValue);
+}
+
+return "";]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>launchWaitPage</NAME>
+      <PARMS>inTimeout, inSource</PARMS>
+      <SCRIPT><![CDATA[setTimeout(function() {
+	var zone = document.querySelector("[fbtextid^='ZONE:']");
+	
+	if(zone) {
+		var zoneNameString = decodeURI(zone.getAttribute("fbtextid")).split(":");
+		var processedSourceName = inSource ? inSource.replace(" ","").toUpperCase() : ""; //match on no spaces all uppercase names
+		if(zoneNameString.length > 1) {
+			var zoneName = zoneNameString[1];
+			GUIAPI.Debug.WriteLine("Zone name: " + zoneName);
+			
+			var zoneSourceFBID = THIS_DEVICE[zoneName + "_FBID"];
+			
+			if(zoneSourceFBID) {
+				var currentSource = GUIAPI.GetFeedback(zoneSourceFBID);
+				GUIAPI.Debug.WriteLine(zoneName + " Current Source: " + currentSource);
+			}
+		}
+		
+		
+		if(THIS_DEVICE.SOURCE[processedSourceName] != currentSource || !inSource) {
+			THIS_DEVICE.waitPageDiv.style.display = "block";
+
+			setTimeout(function() {
+				THIS_DEVICE.waitPageDiv.style.display = "none";
+			},inTimeout);
+		} else {
+			GUIAPI.Debug.WriteLine("Already on source: " + inSource + " in the " + zoneName + " no need to wait.");	
+		}
+	}
+},500);
+
+return "";]]></SCRIPT>
+    </FUNCTION>
+  </FUNCTIONS>
+  <EXPRESSIONS />
+  <INCOMING>
+    <TERM>0D0A</TERM>
+    <SCRIPT><![CDATA[]]></SCRIPT>
+    <ASCII>True</ASCII>
+  </INCOMING>
+  <SHARED>
+    <SCRIPT><![CDATA[//Harcoded IP address of controller and associated variable ID
+THIS_DEVICE.BOARDROOM_FULL_SOURCE_FBID = "192.168.76.241uv1474";
+THIS_DEVICE.BOARDROOM_T1_SOURCE_FBID = "192.168.76.241uv1449";
+THIS_DEVICE.BOARDROOM_T2_SOURCE_FBID = "192.168.76.241uv1450";
+THIS_DEVICE.BOARDROOM_T3_SOURCE_FBID = "192.168.76.241uv1476";
+THIS_DEVICE.BOARDROOM_T4_SOURCE_FBID = "192.168.76.241uv1477";
+THIS_DEVICE.BOARDROOM_PROJ_SOURCE_FBID = "192.168.76.241uv1872";
+
+THIS_DEVICE.OFFICE_FULL_SOURCE_FBID = "192.168.76.241uv1933";
+THIS_DEVICE.OFFICE_T1_SOURCE_FBID = "192.168.76.241uv1934";
+THIS_DEVICE.OFFICE_T2_SOURCE_FBID = "192.168.76.241uv1935";
+THIS_DEVICE.OFFICE_T3_SOURCE_FBID = "192.168.76.241uv1936";
+THIS_DEVICE.OFFICE_T4_SOURCE_FBID = "192.168.76.241uv1937";
+
+THIS_DEVICE.COMMON_FULL_SOURCE_FBID = "192.168.76.241uv1492";
+
+THIS_DEVICE.BOARDROOM_ROOM_REF = "BOARDROOM_FULL_SOURCE";
+THIS_DEVICE.BOARDROOM_TILE_ID = "192.168.76.241uv1681";
+THIS_DEVICE.OFFICE_TILE_ID = "192.168.76.241uv1924";
+
+THIS_DEVICE.SOURCE = {};
+THIS_DEVICE.SOURCE["BLURAY"] = "1";
+THIS_DEVICE.SOURCE["DTV"] = "2";
+THIS_DEVICE.SOURCE["FOXTEL"] = "3";
+THIS_DEVICE.SOURCE["APPLETV"] = "4";
+THIS_DEVICE.SOURCE["VC"] = "5";
+THIS_DEVICE.SOURCE["CCTV"] = "6";
+THIS_DEVICE.SOURCE["ANDREWSPC"] = "7";
+THIS_DEVICE.SOURCE["FHDMI"] = "8";
+THIS_DEVICE.SOURCE["REARHDMI"] = "9";
+THIS_DEVICE.SOURCE["REARVGA"] = "10";
+
+/***** Default Script Device Callbacks ****/
+
+THIS_DEVICE.OnGUILoaded = function(Name){
+	//This function is called by the API whenever a new page is loaded
+	try{
+		THIS_DEVICE.InitiateWaitPage();
+	}catch(e){
+		alert(THIS_DEVICE.Name + ".OnGUILoaded error:" + e);
+	}
+};
+
+THIS_DEVICE.OnGUIWake = function(){
+	//This function is called by the API whenever the iOS or Android device wakes from sleep
+	try{
+	
+	}catch(e){
+		alert(THIS_DEVICE.Name + ".OnGUIWake error:" + e);
+	}
+};
+
+THIS_DEVICE.OnGUIWillGoto = function(Name){
+	//This function is called by the API before a page jump
+	try{
+	
+	}catch(e){
+		alert(THIS_DEVICE.Name + ".OnGUIWillGoto error:" + e);
+	}
+};
+
+THIS_DEVICE.InitiateWaitPage = function() {
+	var style = document.createElement("style");
+	style.innerHTML = ".logo { display:block; width: 200px; margin:50px auto;} p {margin-top:15px; margin-bottom:15px;} .wait-page{display:none;position:absolute; top:77px; left:0px; z-index:1000000;background-color:rgba(0,0,0,0.8);font-size:64px;text-align:center;height:734px;width:1366px;color:#AAA;font-family:arial,sans-serif;}.sub-head{font-size:28px;}.spinner-wrapper{position:absolute;top:45%;transform:translateY(-50%);width:100%;text-align:center; }.spinner{margin:auto;width:100%;}.spinner>div{width:18px;height:18px;background-color:#AAA;border-radius:100%;display:inline-block;-webkit-animation:sk-bouncedelay 1.4s infinite ease-in-out both;animation:sk-bouncedelay 1.4s infinite ease-in-out both}.spinner .bounce1{-webkit-animation-delay:-.32s;animation-delay:-.32s}.spinner .bounce2{-webkit-animation-delay:-.16s;animation-delay:-.16s}@-webkit-keyframes sk-bouncedelay{0%,100%,80%{-webkit-transform:scale(0)}40%{-webkit-transform:scale(1)}}@keyframes sk-bouncedelay{0%,100%,80%{-webkit-transform:scale(0);transform:scale(0)}40%{-webkit-transform:scale(1);transform:scale(1)}}";
+	document.head.appendChild(style);
+	
+	THIS_DEVICE.waitPageDiv = document.createElement("div");
+	THIS_DEVICE.waitPageDiv.classList.add("wait-page");
+	THIS_DEVICE.waitPageDiv.innerHTML = '<div class="spinner-wrapper"><img class="logo" src="images/pdv_logo.png"/><p>PLEASE WAIT</p><p class="sub-head">WHILST SYSTEM LOADS</p><div class="spinner"><div class="bounce1"></div><div class="bounce2"></div><div class="bounce3"></div></div></div>'
+	document.body.appendChild(THIS_DEVICE.waitPageDiv);
+};
+
+]]></SCRIPT>
+  </SHARED>
+  <SETTINGS>
+    <NOTES><![CDATA[]]></NOTES>
+  </SETTINGS>
+</SCRIPTDEVICE>

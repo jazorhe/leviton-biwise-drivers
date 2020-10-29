@@ -1,0 +1,210 @@
+<SCRIPTDEVICE ID="?">
+  <NAME>ClimateWidget</NAME>
+  <NOTES><![CDATA[Magri
+// LIVING (LIVING, GAMES, THEATRE) 113
+// KIDS (RUMPUS, MILLIES, JAKE, OLIVIA) 116
+// ALFRESCO (ALFRESCO) 001
+// MASTER (MBED, MENS) 112
+// GYM (GYM) 114
+// GUEST (GUEST) 111
+// COMMS Sensibo]]></NOTES>
+  <PROTOCOL>API</PROTOCOL>
+  <PORT>
+  </PORT>
+  <IP>
+  </IP>
+  <AUTORC>true</AUTORC>
+  <FUNCTIONS>
+    <FUNCTION ID="?">
+      <NAME>InitiateStyle</NAME>
+      <PARMS>
+      </PARMS>
+      <SCRIPT><![CDATA[var style = document.createElement("style");
+style.innerHTML = "";
+
+document.head.appendChild(style);
+
+return "";
+
+]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>InitiateClimateWidget</NAME>
+      <PARMS>
+      </PARMS>
+      <SCRIPT><![CDATA[var currentZone = GUIAPI.GetFeedback("CURRENT_ZONE");
+
+if (currentZone === undefined) {
+	currentZone = "LIVING";
+}
+
+
+
+switch (currentZone) {
+	case "LIVING":
+		code = 113;
+		break;
+	case "KIDS":
+		code = 116;
+		break;
+		
+	case "MASTER":
+		code = 112;
+		break;
+		
+	case "ALFRESCO":
+		code = 001;
+		break;
+		
+	case "GYM":
+		code = 114;
+		break;
+		
+	case "GUEST":
+		code = 111
+		break;
+
+}
+
+roomtemp = GUIAPI.GetFeedback("PUSH_COOLINKNET_INSTANCE_0_L2_" + code + "_ROOMTMP");
+settemp = GUIAPI.GetFeedback("PUSH_COOLINKNET_INSTANCE_0_L2_" + code + "_SETPNT");
+
+try {
+	roomtemp = roomtemp.substring(0, settemp.length - 1);
+	settemp = settemp.substring(0, settemp.length - 1);
+} catch (e) {
+	currentZone = "--";
+	roomtemp = "--";
+	settemp = "--";
+}
+
+THIS_DEVICE.ClimateWidgetDivFunc(currentZone, settemp,roomtemp);
+
+return "";
+]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>ClimateWidgetDivFunc</NAME>
+      <PARMS>zone, set, feel</PARMS>
+      <SCRIPT><![CDATA[var climateWidgetDivHtml = "<div id=\"climate-widget\"> <div id=\"container-climate-widget-15\"> <div class=\"text__container\"><p class=\"climate__title\">ZONE: ${zone}</p></div> <div> <img id=\"button_power\" style=\"POSITION:fixed; TOP: 140px; LEFT: 835px; WIDTH: 40px; HEIGHT: 40px;\" onmouseup=\"buttonUp('button_power','','none')\" onmousedown=\"buttonDown('button_power','','none:')\" upimage=\"images/powerunpressed.png\" downimage=\"images/powerpressed.png\" fbstateid id=\"button_power\" src=\"images/powerunpressed.png\"> </div> <div> <img id=\"button_up_arrow\" style=\"POSITION:fixed; TOP: 220px; LEFT: 785px; WIDTH: 90px; HEIGHT: 33px;\" onmouseup=\"buttonUp('button_up_arrow','','none')\" onmousedown=\"buttonDown('button_up_arrow','hold:js:devs%5b7%5d.climatewidgetup:','none:')\" upimage=\"images/Up_Arrow_Unpressed1.png\" downimage=\"images/tempuppressed.png\" fbstateid id=\"button_up_arrow\" src=\"images/up_arrow_unpressed1.png\" > </div> <div><p class=\"setTemp\">${set}<span>°C</span></p></div> <div><p class=\"setWord\">Set</p></div> <div> <img id=\"button_down_arrow\" style=\"POSITION:fixed; TOP: 265px; LEFT: 785px; WIDTH: 90px; HEIGHT: 33px;\" onmouseup=\"buttonUp('button_down_arrow','','none')\" onmousedown=\"buttonDown('button_down_arrow','','none:')\" upimage=\"images/Down_Arrow_Unpressed1.png\" downimage=\"images/tempdownpressed.png\" fbstateid id=\"button_down_arrow\" src=\"images/down_arrow_unpressed1.png\" > </div> <div class=\"text__container\"><p class=\"feelsLike\">${feel}<span>°C</span></p></div> </div></div>";
+
+climateWidgetDivHtml = climateWidgetDivHtml.replace("${zone}",zone);
+climateWidgetDivHtml = climateWidgetDivHtml.replace("${set}",set);
+climateWidgetDivHtml = climateWidgetDivHtml.replace("${feel}",feel);
+
+setTimeout(function() {
+	THIS_DEVICE.climateWidgetDiv.innerHTML = climateWidgetDivHtml;
+	document.body.appendChild(THIS_DEVICE.climateWidgetDiv);
+},500);
+
+return ""]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>launchClimateWidget</NAME>
+      <PARMS>
+      </PARMS>
+      <SCRIPT><![CDATA[try{
+	THIS_DEVICE.climateWidgetDiv.style.display = "block";
+}catch(e){
+	setTimeout(function() {THIS_DEVICE.launchClimateWidget();
+	}, 500);
+}
+
+return "";]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>hideWeatherWidget</NAME>
+      <PARMS>
+      </PARMS>
+      <SCRIPT><![CDATA[try{
+	THIS_DEVICE.climateWidgetDiv.style.display = "none";
+}catch(e){
+	setTimeout(function() {THIS_DEVICE.hideWeatherWidget();
+	}, 500);
+}
+
+return "";]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>setClimateZone</NAME>
+      <PARMS>zoneName</PARMS>
+      <SCRIPT><![CDATA[GUIAPI.ShowFeedback("CURRENT_ZONE", zoneName, true);
+
+return ""]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>ClimateWidgetUp</NAME>
+      <PARMS>
+      </PARMS>
+      <SCRIPT><![CDATA[//Parameters must be comma-delimited
+//Treat all Parameters as strings
+//Function must return string
+alert("Hi");
+
+return "";]]></SCRIPT>
+    </FUNCTION>
+  </FUNCTIONS>
+  <EXPRESSIONS />
+  <INCOMING>
+    <TERM>0D0A</TERM>
+    <SCRIPT><![CDATA[]]></SCRIPT>
+    <ASCII>True</ASCII>
+  </INCOMING>
+  <SHARED>
+    <SCRIPT><![CDATA[/***** Default Script Device Callbacks ****/
+
+THIS_DEVICE.OnGUILoaded = function(Name){
+	//This function is called by the API whenever a new page is loaded
+	try{
+		if (Name == "__HOME_iPad__") {
+			THIS_DEVICE.climateWidgetDiv = document.createElement("div");
+			THIS_DEVICE.climateWidgetDiv.classList.add("open-climate-widget");
+			THIS_DEVICE.InitiateClimateWidget();
+			THIS_DEVICE.launchClimateWidget();
+			THIS_DEVICE.pollForUpdate();
+		}
+
+	}catch(e){
+		alert(THIS_DEVICE.Name + ".OnGUILoaded error:" + e);
+	}
+};
+
+THIS_DEVICE.OnGUIWake = function(){
+	//This function is called by the API whenever the iOS or Android device wakes from sleep
+	try{
+
+	}catch(e){
+		alert(THIS_DEVICE.Name + ".OnGUIWake error:" + e);
+	}
+};
+
+THIS_DEVICE.OnGUIWillGoto = function(Name){
+	//This function is called by the API before a page jump
+	try{
+
+	}catch(e){
+		alert(THIS_DEVICE.Name + ".OnGUIWillGoto error:" + e);
+	}
+};
+
+
+THIS_DEVICE.pollForUpdate = function () {
+
+	var i = 0, loop_length = i++, loop_speed = THIS_DEVICE.SETTINGS.PollFrequencySeconds;
+
+	function loopClimate(){
+		i= 1;
+		THIS_DEVICE.InitiateClimateWidget();
+		if (i===loop_length) clearInterval(handlerClimate);
+	}
+
+	var handlerClimate = setInterval(loopClimate, loop_speed*1000);
+
+};
+]]></SCRIPT>
+  </SHARED>
+  <SETTINGS>
+    <SETTING NAME="PollFrequencySeconds"><![CDATA[3]]></SETTING>
+    <NOTES><![CDATA[]]></NOTES>
+  </SETTINGS>
+</SCRIPTDEVICE>

@@ -1,0 +1,49 @@
+<div id="climate-widget">
+  <div id="container-climate-widget-15">
+    <div class="text__container"><p class="climate__title">ZONE: ${zone}</p></div>
+
+    <div><p class="setTemp">${set}<span>°C</span></p></div>
+
+    <div><p class="setWord">Set</p></div>
+
+    <div>
+      <img
+      id="button_power"
+      src="images/powerunpressed.png"
+      style="POSITION:fixed; TOP: 140px; LEFT: 835px; WIDTH: 40px; HEIGHT: 40px;"
+      onmouseup="buttonUp('button_power','','none')"
+      onmousedown="buttonDown('button_power','hold:${device}.ClimateWidgetPower:','none:')"
+      upimage="images/powerunpressed.png"
+      downimage="images/powerpressed.png"
+      fbstateid/>
+    </div>
+
+    <div>
+      <img
+      id="button_up_arrow"
+      src="images/uparrowunpressed.png"
+      style="POSITION:fixed; TOP: 220px; LEFT: 785px; WIDTH: 90px; HEIGHT: 33px;"
+      onmouseup="buttonUp('button_up_arrow','','none')"
+      onmousedown="buttonDown('button_up_arrow','hold:${device}.ClimateWidgetUp:','none:')"
+      upimage="images/uparrowunpressed.png"
+      downimage="images/uparrowpressed.png"
+      fbstateid/>
+    </div>
+
+    <div>
+      <img
+        id="button_down_arrow"
+        src="images/downarrowunpressed.png"
+        style="POSITION:fixed; TOP: 265px; LEFT: 785px; WIDTH: 90px; HEIGHT: 33px;"
+        onmouseup="buttonUp('
+        button_down_arrow','','none')"
+        onmousedown="buttonDown('
+        button_down_arrow','hold:${device}.ClimateWidgetDown:','none:')"
+        upimage="images/downarrowunpressed.png"
+        downimage="images/downarrowpressed.png"
+        fbstateid/>
+    </div>
+
+    <div class="text__container"><p class="feelsLike">${feel}<span>°C</span></p></div>
+  </div>
+</div>

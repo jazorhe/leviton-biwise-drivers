@@ -1,0 +1,554 @@
+<SCRIPTDEVICE ID="?">
+  <NAME>HomeAssistantAPIClient</NAME>
+  <NOTES><![CDATA[There are many ways to achieve web REST API infomation exchange in all languages.
+In PUSH, through a series of testing and blind searching, XMLHttpRequest is found to be most compatible with the control system.
+
+Here is a good reference webpage that describes the functionality of smlhttprequest:
+https://javascript.info/xmlhttprequest
+This script device was built based on the above web page's explaination and insturctions.
+There are other websites that explains this concept, however, their enviornment are not as similar as the above website.
+Hence following the above link is recommended.
+
+In PUSH/BitWise Javascript API, the "GUIAPI.HTTP"/"CTRAPI.HTTP" provide some basic GET/POST function to HTTP pages only,
+They will not be suitable for any infomation to a HTTPS protocol for the following reasons:
+1. Security/Privacy
+2. Complexity
+3. Any API calls that needs key for authentication
+4. Headers Specification
+5. Possibly more.
+
+The ideal applications to these built in GUIAPI.HTTP/CTRAPI.HTTP will be API calls within the local network that are not security/privacy sensitive, e.g. send IP command to TV (no authentication).
+At this stage, only basic GET and POST functions are built in this script device so it should work with most web REST APIs including Domotz,  including Magri's Link Tap device etc.
+Unleashed is tricky as it uses an encoded signature as extra layer of security and current there is no way to generate such signature in PUSH's enviornment.
+https://portal.domotz.com/developers/?shell#
+https://apidocs.unleashedsoftware.com/AuthenticationHelp
+https://www.link-tap.com/#!/api-for-developers
+
+This will be investigated in future but the chance is very tiny as these signature methods are relatively new and constantly updated, chance of PUSH supporting dependencies like these are very little.
+
+More functions are available to build more esaily as the biggest roadblock has been overcome and this should advance our control system greatly.
+jazor.he@gmail.com
+
+
+https://developers.home-assistant.io/docs/en/external_api_rest.html]]></NOTES>
+  <PROTOCOL>232</PROTOCOL>
+  <PORT>1</PORT>
+  <IP />
+  <AUTORC>true</AUTORC>
+  <FUNCTIONS>
+    <FUNCTION ID="?">
+      <NAME>CheckAPIState</NAME>
+      <PARMS />
+      <SCRIPT><![CDATA[let xhr = new XMLHttpRequest();
+
+var api_key = THIS_DEVICE.SETTINGS['ha_api_token'];
+var auth_message = 'Bearer ' + api_key;
+
+xhr.open('GET', 'http://192.168.1.91:8123/api/');
+xhr.setRequestHeader('Content-Type', 'application/json');
+xhr.setRequestHeader('Authorization', auth_message);
+xhr.responseType = 'json';
+
+xhr.send();
+
+xhr.onload = function() {
+  if (xhr.status != 200) { // analyze HTTP status of the response
+    alert(`Error ${xhr.status}: ${xhr.statusText}`); // e.g. 404: Not Found
+  } else { // show the result
+	let responseObj = xhr.response;
+	alert(responseObj.message);
+    // alert(`Done, got ${xhr.response.length} bytes`); // responseText is the server
+  }
+};
+
+xhr.onprogress = function(event) {
+  if (event.lengthComputable) {
+    // alert(`Received ${event.loaded} of ${event.total} bytes`);
+  } else {
+    // alert(`Received ${event.loaded} bytes`); // no Content-Length
+  }
+
+};
+
+xhr.onerror = function() {
+  alert("Request failed");
+};
+
+xhr.timeout = 10000;
+
+return ""]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>CheckConfig</NAME>
+      <PARMS>params</PARMS>
+      <SCRIPT><![CDATA[let xhr = new XMLHttpRequest();
+
+var api_key = THIS_DEVICE.SETTINGS['ha_api_token'];
+var auth_message = 'Bearer ' + api_key;
+
+xhr.open('GET', 'http://192.168.1.91:8123/api/config');
+xhr.setRequestHeader('Content-Type', 'application/json');
+xhr.setRequestHeader('Authorization', auth_message);
+xhr.responseType = 'json';
+
+xhr.send();
+
+xhr.onload = function() {
+  if (xhr.status != 200) { // analyze HTTP status of the response
+    alert(`Error ${xhr.status}: ${xhr.statusText}`); // e.g. 404: Not Found
+  } else { // show the result
+	let responseObj = xhr.response;
+	alert(responseObj.message);
+    // alert(`Done, got ${xhr.response.length} bytes`); // responseText is the server
+  }
+};
+
+xhr.onprogress = function(event) {
+  if (event.lengthComputable) {
+    // alert(`Received ${event.loaded} of ${event.total} bytes`);
+  } else {
+    // alert(`Received ${event.loaded} bytes`); // no Content-Length
+  }
+
+};
+
+xhr.onerror = function() {
+  alert("Request failed");
+};
+
+xhr.timeout = 10000;
+
+return ""]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>media_player_ON</NAME>
+      <PARMS>entity_id</PARMS>
+      <SCRIPT><![CDATA[let xhr = new XMLHttpRequest();
+
+var api_key = THIS_DEVICE.SETTINGS['ha_api_token'];
+var auth_message = 'Bearer ' + api_key;
+
+xhr.open('POST', 'http://192.168.1.91:8123/api/services/media_player/turn_on');
+xhr.setRequestHeader('Content-Type', 'application/json');
+xhr.setRequestHeader('Authorization', auth_message);
+xhr.responseType = 'json';
+
+var full_id = 'media_player.' + entity_id;
+xhr.send(JSON.stringify({'entity_id': full_id}));
+
+
+xhr.onload = function() {
+  if (xhr.status != 200) { // analyze HTTP status of the response
+    alert(`Error ${xhr.status}: ${xhr.statusText}`); // e.g. 404: Not Found
+  } else { // show the result
+	let responseObj = xhr.response;
+	// alert(responseObj.message);
+    // alert(`Done, got ${xhr.response.length} bytes`); // responseText is the server
+  }
+};
+
+xhr.onprogress = function(event) {
+  if (event.lengthComputable) {
+    // alert(`Received ${event.loaded} of ${event.total} bytes`);
+  } else {
+    // alert(`Received ${event.loaded} bytes`); // no Content-Length
+  }
+
+};
+
+xhr.onerror = function() {
+  alert("Request failed");
+};
+
+xhr.timeout = 10000;
+
+return ""]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>media_player_OFF</NAME>
+      <PARMS>entity_id</PARMS>
+      <SCRIPT><![CDATA[let xhr = new XMLHttpRequest();
+
+var api_key = THIS_DEVICE.SETTINGS['ha_api_token'];
+var auth_message = 'Bearer ' + api_key;
+
+xhr.open('POST', 'http://192.168.1.91:8123/api/services/media_player/turn_off');
+xhr.setRequestHeader('Content-Type', 'application/json');
+xhr.setRequestHeader('Authorization', auth_message);
+xhr.responseType = 'json';
+
+var full_id = 'media_player.' + entity_id;
+xhr.send(JSON.stringify({'entity_id': full_id}));
+
+xhr.onload = function() {
+  if (xhr.status != 200) { // analyze HTTP status of the response
+    alert(`Error ${xhr.status}: ${xhr.statusText}`); // e.g. 404: Not Found
+  } else { // show the result
+	let responseObj = xhr.response;
+	// alert(responseObj.message);
+    // alert(`Done, got ${xhr.response.length} bytes`); // responseText is the server
+  }
+};
+
+xhr.onprogress = function(event) {
+  if (event.lengthComputable) {
+    // alert(`Received ${event.loaded} of ${event.total} bytes`);
+  } else {
+    // alert(`Received ${event.loaded} bytes`); // no Content-Length
+  }
+
+};
+
+xhr.onerror = function() {
+  alert("Request failed");
+};
+
+xhr.timeout = 10000;
+
+return ""]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>media_player_PLAY_PAUSE</NAME>
+      <PARMS>entity_id</PARMS>
+      <SCRIPT><![CDATA[let xhr = new XMLHttpRequest();
+
+var api_key = THIS_DEVICE.SETTINGS['ha_api_token'];
+var auth_message = 'Bearer ' + api_key;
+
+xhr.open('POST', 'http://192.168.1.91:8123/api/services/media_player/media_play_pause');
+xhr.setRequestHeader('Content-Type', 'application/json');
+xhr.setRequestHeader('Authorization', auth_message);
+xhr.responseType = 'json';
+
+var full_id = 'media_player.' + entity_id;
+xhr.send(JSON.stringify({'entity_id': full_id}));
+
+xhr.onload = function() {
+  if (xhr.status != 200) { // analyze HTTP status of the response
+    alert(`Error ${xhr.status}: ${xhr.statusText}`); // e.g. 404: Not Found
+  } else { // show the result
+	let responseObj = xhr.response;
+	// alert(responseObj.message);
+    // alert(`Done, got ${xhr.response.length} bytes`); // responseText is the server
+  }
+};
+
+xhr.onprogress = function(event) {
+  if (event.lengthComputable) {
+    // alert(`Received ${event.loaded} of ${event.total} bytes`);
+  } else {
+    // alert(`Received ${event.loaded} bytes`); // no Content-Length
+  }
+
+};
+
+xhr.onerror = function() {
+  alert("Request failed");
+};
+
+xhr.timeout = 10000;
+
+return ""]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>media_player_NEXT</NAME>
+      <PARMS>entity_id</PARMS>
+      <SCRIPT><![CDATA[let xhr = new XMLHttpRequest();
+
+var api_key = THIS_DEVICE.SETTINGS['ha_api_token'];
+var auth_message = 'Bearer ' + api_key;
+
+xhr.open('POST', 'http://192.168.1.91:8123/api/services/media_player/media_next_track');
+xhr.setRequestHeader('Content-Type', 'application/json');
+xhr.setRequestHeader('Authorization', auth_message);
+xhr.responseType = 'json';
+
+var full_id = 'media_player.' + entity_id;
+xhr.send(JSON.stringify({'entity_id': full_id}));
+
+xhr.onload = function() {
+  if (xhr.status != 200) { // analyze HTTP status of the response
+    alert(`Error ${xhr.status}: ${xhr.statusText}`); // e.g. 404: Not Found
+  } else { // show the result
+	let responseObj = xhr.response;
+	// alert(responseObj.message);
+    // alert(`Done, got ${xhr.response.length} bytes`); // responseText is the server
+  }
+};
+
+xhr.onprogress = function(event) {
+  if (event.lengthComputable) {
+    // alert(`Received ${event.loaded} of ${event.total} bytes`);
+  } else {
+    // alert(`Received ${event.loaded} bytes`); // no Content-Length
+  }
+
+};
+
+xhr.onerror = function() {
+  alert("Request failed");
+};
+
+xhr.timeout = 10000;
+
+return ""]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>media_player_PREVIOUS</NAME>
+      <PARMS>entity_id</PARMS>
+      <SCRIPT><![CDATA[let xhr = new XMLHttpRequest();
+
+var api_key = THIS_DEVICE.SETTINGS['ha_api_token'];
+var auth_message = 'Bearer ' + api_key;
+
+xhr.open('POST', 'http://192.168.1.91:8123/api/services/media_player/media_previous_track');
+xhr.setRequestHeader('Content-Type', 'application/json');
+xhr.setRequestHeader('Authorization', auth_message);
+xhr.responseType = 'json';
+
+var full_id = 'media_player.' + entity_id;
+xhr.send(JSON.stringify({'entity_id': full_id}));
+
+xhr.onload = function() {
+  if (xhr.status != 200) { // analyze HTTP status of the response
+    alert(`Error ${xhr.status}: ${xhr.statusText}`); // e.g. 404: Not Found
+  } else { // show the result
+	let responseObj = xhr.response;
+	// alert(responseObj.message);
+    // alert(`Done, got ${xhr.response.length} bytes`); // responseText is the server
+  }
+};
+
+xhr.onprogress = function(event) {
+  if (event.lengthComputable) {
+    // alert(`Received ${event.loaded} of ${event.total} bytes`);
+  } else {
+    // alert(`Received ${event.loaded} bytes`); // no Content-Length
+  }
+
+};
+
+xhr.onerror = function() {
+  alert("Request failed");
+};
+
+xhr.timeout = 10000;
+
+return ""]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>media_player_VOLUP</NAME>
+      <PARMS>entity_id</PARMS>
+      <SCRIPT><![CDATA[let xhr = new XMLHttpRequest();
+
+var api_key = THIS_DEVICE.SETTINGS['ha_api_token'];
+var auth_message = 'Bearer ' + api_key;
+
+xhr.open('POST', 'http://192.168.1.91:8123/api/services/media_player/volume_up');
+xhr.setRequestHeader('Content-Type', 'application/json');
+xhr.setRequestHeader('Authorization', auth_message);
+xhr.responseType = 'json';
+
+var full_id = 'media_player.' + entity_id;
+xhr.send(JSON.stringify({'entity_id': full_id}));
+
+xhr.onload = function() {
+  if (xhr.status != 200) { // analyze HTTP status of the response
+    alert(`Error ${xhr.status}: ${xhr.statusText}`); // e.g. 404: Not Found
+  } else { // show the result
+	let responseObj = xhr.response;
+	// alert(responseObj.message);
+    // alert(`Done, got ${xhr.response.length} bytes`); // responseText is the server
+  }
+};
+
+xhr.onprogress = function(event) {
+  if (event.lengthComputable) {
+    // alert(`Received ${event.loaded} of ${event.total} bytes`);
+  } else {
+    // alert(`Received ${event.loaded} bytes`); // no Content-Length
+  }
+
+};
+
+xhr.onerror = function() {
+  alert("Request failed");
+};
+
+xhr.timeout = 10000;
+
+return ""]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>media_player_VOLDOWN</NAME>
+      <PARMS>entity_id</PARMS>
+      <SCRIPT><![CDATA[let xhr = new XMLHttpRequest();
+
+var api_key = THIS_DEVICE.SETTINGS['ha_api_token'];
+var auth_message = 'Bearer ' + api_key;
+
+xhr.open('POST', 'http://192.168.1.91:8123/api/services/media_player/volume_down');
+xhr.setRequestHeader('Content-Type', 'application/json');
+xhr.setRequestHeader('Authorization', auth_message);
+xhr.responseType = 'json';
+
+var full_id = 'media_player.' + entity_id;
+xhr.send(JSON.stringify({'entity_id': full_id}));
+
+xhr.onload = function() {
+  if (xhr.status != 200) { // analyze HTTP status of the response
+    alert(`Error ${xhr.status}: ${xhr.statusText}`); // e.g. 404: Not Found
+  } else { // show the result
+	let responseObj = xhr.response;
+	// alert(responseObj.message);
+    // alert(`Done, got ${xhr.response.length} bytes`); // responseText is the server
+  }
+};
+
+xhr.onprogress = function(event) {
+  if (event.lengthComputable) {
+    // alert(`Received ${event.loaded} of ${event.total} bytes`);
+  } else {
+    // alert(`Received ${event.loaded} bytes`); // no Content-Length
+  }
+
+};
+
+xhr.onerror = function() {
+  alert("Request failed");
+};
+
+xhr.timeout = 10000;
+
+return ""]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>media_player_VOLSET</NAME>
+      <PARMS>entity_id, volume_level</PARMS>
+      <SCRIPT><![CDATA[let xhr = new XMLHttpRequest();
+
+var api_key = THIS_DEVICE.SETTINGS['ha_api_token'];
+var auth_message = 'Bearer ' + api_key;
+
+xhr.open('POST', 'http://192.168.1.91:8123/api/services/media_player/volume_set');
+xhr.setRequestHeader('Content-Type', 'application/json');
+xhr.setRequestHeader('Authorization', auth_message);
+xhr.responseType = 'json';
+
+var full_id = 'media_player.' + entity_id;
+xhr.send(JSON.stringify({'entity_id': full_id, 'volume_level': volume_level}));
+
+xhr.onload = function() {
+  if (xhr.status != 200) { // analyze HTTP status of the response
+    alert(`Error ${xhr.status}: ${xhr.statusText}`); // e.g. 404: Not Found
+  } else { // show the result
+	let responseObj = xhr.response;
+	// alert(responseObj.message);
+    // alert(`Done, got ${xhr.response.length} bytes`); // responseText is the server
+  }
+};
+
+xhr.onprogress = function(event) {
+  if (event.lengthComputable) {
+    // alert(`Received ${event.loaded} of ${event.total} bytes`);
+  } else {
+    // alert(`Received ${event.loaded} bytes`); // no Content-Length
+  }
+
+};
+
+xhr.onerror = function() {
+  alert("Request failed");
+};
+
+xhr.timeout = 10000;
+
+return ""]]></SCRIPT>
+    </FUNCTION>
+    <FUNCTION ID="?">
+      <NAME>remote_send_command</NAME>
+      <PARMS>entity_id,command</PARMS>
+      <SCRIPT><![CDATA[let xhr = new XMLHttpRequest();
+
+var api_key = THIS_DEVICE.SETTINGS['ha_api_token'];
+var auth_message = 'Bearer ' + api_key;
+
+xhr.open('POST', 'http://192.168.1.91:8123/api/services/remote/send_command');
+xhr.setRequestHeader('Content-Type', 'application/json');
+xhr.setRequestHeader('Authorization', auth_message);
+xhr.responseType = 'json';
+
+var full_id = 'remote.' + entity_id;
+xhr.send(JSON.stringify({'entity_id': full_id, 'command': command}));
+
+xhr.onload = function() {
+  if (xhr.status != 200) { // analyze HTTP status of the response
+    alert(`Error ${xhr.status}: ${xhr.statusText}`); // e.g. 404: Not Found
+  } else { // show the result
+	let responseObj = xhr.response;
+	// alert(responseObj.message);
+    // alert(`Done, got ${xhr.response.length} bytes`); // responseText is the server
+  }
+};
+
+xhr.onprogress = function(event) {
+  if (event.lengthComputable) {
+    // alert(`Received ${event.loaded} of ${event.total} bytes`);
+  } else {
+    // alert(`Received ${event.loaded} bytes`); // no Content-Length
+  }
+
+};
+
+xhr.onerror = function() {
+  alert("Request failed");
+};
+
+xhr.timeout = 10000;
+
+return ""]]></SCRIPT>
+    </FUNCTION>
+  </FUNCTIONS>
+  <EXPRESSIONS />
+  <INCOMING>
+    <TERM>0D0A</TERM>
+    <SCRIPT><![CDATA[]]></SCRIPT>
+    <ASCII>True</ASCII>
+  </INCOMING>
+  <SHARED>
+    <SCRIPT><![CDATA[/***** Default Script Device Callbacks ****/
+
+THIS_DEVICE.OnGUILoaded = function(Name){
+	//This function is called by the API whenever a new page is loaded
+	try{
+	
+	}catch(e){
+		alert(THIS_DEVICE.Name + ".OnGUILoaded error:" + e);
+	}
+};
+
+THIS_DEVICE.OnGUIWake = function(){
+	//This function is called by the API whenever the iOS or Android device wakes from sleep
+	try{
+	
+	}catch(e){
+		alert(THIS_DEVICE.Name + ".OnGUIWake error:" + e);
+	}
+};
+
+THIS_DEVICE.OnGUIWillGoto = function(Name){
+	//This function is called by the API before a page jump
+	try{
+	
+	}catch(e){
+		alert(THIS_DEVICE.Name + ".OnGUIWillGoto error:" + e);
+	}
+};
+
+]]></SCRIPT>
+  </SHARED>
+  <SETTINGS>
+    <SETTING NAME="ha_api_token"><![CDATA["eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiIwYTBiNDdkODQ5ZTM0NzNjYmY4ZDk4N2QzODU0NDZkOCIsImlhdCI6MTU3ODYxNjAxNCwiZXhwIjoxODkzOTc2MDE0fQ.3-3aeF2Mdm2PVomEPPi5Qwf5AQnk5_OA0rAGMCvqo1U"]]></SETTING>
+    <NOTES><![CDATA[]]></NOTES>
+  </SETTINGS>
+</SCRIPTDEVICE>
