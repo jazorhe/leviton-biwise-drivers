@@ -17,9 +17,9 @@ function ChannelLevel() {
     var areaEnd = ChannelLevelMessage.indexOf(", ");
     var areaNum = ChannelLevelMessage.substring(areaStart + 5, areaEnd);
 
-    var inFeedbackID = "DYNALITE_BAV_A" + areaNum + "_C" + channelNum + "_LVL"
+    var inFeedbackID = "DYNALITE_BAV_A" + areaNum + "_C" + channelNum + "_LVL";
     // Example "DYNALITE_BAV_A15_C1_LVL"
-    var inData = levelNum
+    var inData = levelNum;
 
     //THIS_DEVICE.SetGlobalFeedbackData(inFeedbackID, inData);
     //CTRLAPI.Debug.WriteLine("Set Feedback");
@@ -27,3 +27,8 @@ function ChannelLevel() {
     return levelNum;
 
 }
+
+// Expression: (Stop Fade Channel .*)
+// Name:
+// FBID:
+// Test Data:

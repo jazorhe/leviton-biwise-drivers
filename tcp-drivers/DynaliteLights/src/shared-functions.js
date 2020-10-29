@@ -15,7 +15,7 @@ if(ON_CONTROLLER){
 	try{
 		// Login when the controller boots
 		setTimeout(function () {
-			THIS_DEVICE.Keep_Alive();
+			THIS_DEVICE.KeepAlive();
 			THIS_DEVICE.Connected = true;
 		}, 200);
 
@@ -23,7 +23,7 @@ if(ON_CONTROLLER){
 		THIS_DEVICE.onTCPConnected = function(){
 			// Login if this event was called as a result of a disconnect
 			if(THIS_DEVICE.Connected === false){
-				THIS_DEVICE.Keep_Alive();
+				THIS_DEVICE.KeepAlive();
 				THIS_DEVICE.Connected = true;
 				CTRLAPI.Debug.WriteLine("Reconnected to Dynalite Gateway");
 			}
