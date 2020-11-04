@@ -16,4 +16,4 @@ GUIAPI.ShowFeedback("CLOCK_TIME",time,true);
 GUIAPI.ShowFeedback("CLOCK_DATE",date,true);
 GUIAPI.ShowFeedback("CLOCK_DAY",day,true);
 
-return ""
+return "";

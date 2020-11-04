@@ -7,37 +7,16 @@ Compatibility - BC1 or BC2 Controller and a Luxul Switch
 
 Tested on AMS-2426P FW 4.1
 
-Protocol - TCP
+Protocol - TCP   
 
 PORT - 23
-
-
-
-********************************************SPECIAL NOTE*************************************************************
-IMPORTANT!
-
-The Luxul switch requires a login every time a socket connection is made.
-
-
-*************************************************  BC-1/2  ******************************************************************
-
-The BC1 and BC2 controllers have automatic socket management built-in.  All that should be necessary is to edit the user settings for the correct user and password for
-the Luxul Switcht.
-
-
-Functions ------------------------------------------------------------------------------------------------------------------------
-
-Route Input (TX) to Output (RX)
-
-
-Feedback-------------------------------------------------------------------------------------------------------------------------
 ]]></NOTES>
   <PROTOCOL>TCP</PROTOCOL>
   <PORT>23</PORT>
   <IP>192.168.0.101</IP>
   <FUNCTIONS>
     <FUNCTION ID="?">
-      <NAME>Keep_Alive</NAME>
+      <NAME>KeepAlive</NAME>
       <PARMS>
       </PARMS>
       <SCRIPT><![CDATA[return "\r\n";]]></SCRIPT>
@@ -65,7 +44,7 @@ return "";]]></SCRIPT>
   </FUNCTIONS>
   <EXPRESSIONS>
     <EXP ID="?">
-      <NAME>All Feedback</NAME>
+      <NAME>AllFeedback</NAME>
       <REGEX><![CDATA[(.*)]]></REGEX>
       <FEEDBACK>
         <FB ID="?">
@@ -73,7 +52,7 @@ return "";]]></SCRIPT>
           <FBID>DYN_All</FBID>
           <CONVERSION><![CDATA[CTRLAPI.Debug.WriteLine("Found Feedback");
 
-return data]]></CONVERSION>
+return data;]]></CONVERSION>
         </FB>
       </FEEDBACK>
     </EXP>
@@ -87,10 +66,8 @@ return data]]></CONVERSION>
           <CONVERSION><![CDATA[THIS_DEVICE.RequestChannelLevel();
 var StopFadeMessage = data;
 var n = StopFadeMessage.indexOf("Channel");
-StopFadeMessage[n + 7]
 
-return "StopFadeMessage[n + 7]";
-]]></CONVERSION>
+return "StopFadeMessage[n + 7]";]]></CONVERSION>
         </FB>
       </FEEDBACK>
     </EXP>
@@ -119,15 +96,14 @@ var areaStart = ChannelLevelMessage.indexOf("Area");
 var areaEnd = ChannelLevelMessage.indexOf(", ");
 var areaNum = ChannelLevelMessage.substring(areaStart + 5, areaEnd);
 
-var inFeedbackID = "DYNALITE_BAV_A" + areaNum + "_C" + channelNum + "_LVL"
+var inFeedbackID = "DYNALITE_BAV_A" + areaNum + "_C" + channelNum + "_LVL";
 // Example "DYNALITE_BAV_A15_C1_LVL"
-var inData = levelNum
+var inData = levelNum;
 
 //THIS_DEVICE.SetGlobalFeedbackData(inFeedbackID, inData);
 //CTRLAPI.Debug.WriteLine("Set Feedback");
 
-return levelNum;
-]]></CONVERSION>
+return levelNum;]]></CONVERSION>
         </FB>
       </FEEDBACK>
     </EXP>
@@ -157,14 +133,14 @@ var levelStart = ChannelLevelMessage.indexOf("CurrLev");
 var levelEnd = ChannelLevelMessage.indexOf("%, J");
 var levelNum = ChannelLevelMessage.substring(levelStart + 8, levelEnd);
 
-var inFeedbackID = "DYNALITE_BAV_A" + areaNum + "_C" + channelNum + "_LVL"
+var inFeedbackID = "DYNALITE_BAV_A" + areaNum + "_C" + channelNum + "_LVL";
 // Example "DYNALITE_BAV_A15_C1_LVL"
-var inData = levelNum
+var inData = levelNum;
 
 //THIS_DEVICE.SetGlobalFeedbackData(inFeedbackID, inData);//
 //CTRLAPI.Debug.WriteLine("Set Feedback");
 
-return levelNum]]></CONVERSION>
+return levelNum;]]></CONVERSION>
         </FB>
       </FEEDBACK>
     </EXP>
@@ -178,7 +154,7 @@ return levelNum]]></CONVERSION>
           <CONVERSION><![CDATA[THIS_DEVICE.RequestChannelLevel();
 var StopFadeMessage = data;
 var n = StopFadeMessage.indexOf("Area");
-StopFadeMessage[n + 5]
+//StopFadeMessage[n + 5]
 
 return data;
 ]]></CONVERSION>
@@ -212,7 +188,7 @@ if(ON_CONTROLLER){
 	try{
 		// Login when the controller boots
 		setTimeout(function () {
-			THIS_DEVICE.Keep_Alive();
+			THIS_DEVICE.KeepAlive();
 			THIS_DEVICE.Connected = true;
 		}, 200);
 
@@ -220,7 +196,7 @@ if(ON_CONTROLLER){
 		THIS_DEVICE.onTCPConnected = function(){
 			// Login if this event was called as a result of a disconnect
 			if(THIS_DEVICE.Connected === false){
-				THIS_DEVICE.Keep_Alive();
+				THIS_DEVICE.KeepAlive();
 				THIS_DEVICE.Connected = true;
 				CTRLAPI.Debug.WriteLine("Reconnected to Dynalite Gateway");
 			}

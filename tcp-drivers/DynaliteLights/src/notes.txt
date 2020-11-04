@@ -1,0 +1,9 @@
+Just Add Power Luxul Control Driver V1.0 29/3/19
+
+Compatibility - BC1 or BC2 Controller and a Luxul Switch
+
+Tested on AMS-2426P FW 4.1
+
+Protocol - TCP
+
+PORT - 23

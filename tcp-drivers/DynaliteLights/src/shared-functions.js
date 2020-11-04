@@ -1,6 +1,14 @@
 THIS_DEVICE.FBPrefix = "DYN_";
 THIS_DEVICE.API = null;
 
+THIS_DEVICE.hex2a = function(hexx) {
+    var hex = hexx.toString();//force conversion
+    var str = '';
+    for (var i = 0; i < hex.length; i += 2)
+        str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
+    return str;
+};
+
 if(ON_GUI){
 	THIS_DEVICE.API = GUIAPI;
 }
